@@ -1,5 +1,5 @@
 SETS
-	LETRA = ´A´+'B'+'C'+'d'+'e'+'f'+'s'
+	LETRA = 'A'+'B'+'C'+'d'+'e'+'f'+'s'
 	DIGITO = '0'+'1'+'2'+'5'+'6'+'8'+'4''9'
 	CHARSET = CHR(32)+CHR(254)
 TOKENS
