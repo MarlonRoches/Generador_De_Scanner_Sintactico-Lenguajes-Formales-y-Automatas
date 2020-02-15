@@ -15,13 +15,12 @@ namespace Proyecto_Lenguajes
             var reader = new StreamReader(path);
             var linea = reader.ReadLine();
             var SETS = new Dictionary<string, List<string>>();
-            var Tokens = new Dictionary<string, List<string>>();
+            var TOKENS = new Dictionary<string,string>();
             while (linea != null)
             {
 
                 if (linea == "SETS")
                 {
-                    var contador = 0;
                     linea = reader.ReadLine().Replace("\t", "").Replace(" ", "");
                     while (linea != "TOKENS" &&  linea != "ACTIONS")
                     {//partimos y quitmos espacios
@@ -35,27 +34,34 @@ namespace Proyecto_Lenguajes
                         linea = reader.ReadLine().Replace("\t", "").Replace(" ", "");
                     }
 
-                    if (linea == "TOKENS")
-                    {
-
+                }
+                if (linea == "TOKENS")
+                {
+                    linea = reader.ReadLine().Replace("\t", "");
+                    while (linea != "SETS" && linea != "ACTIONS")
+                    {//partimos y quitmos espacios
+                        var SplitIndex = linea.IndexOf('=');
+                        var id = linea.Substring(0, SplitIndex - 1);
+                        linea = linea.Remove(0, SplitIndex+2);
+                        var Token = linea.Replace("'","");
+                        TOKENS.Add(Token, id);
+                        linea = reader.ReadLine().Replace("\t", "");
                     }
+                }
 
-                    if (linea == "ACTIONS")
-                    {
+                if (linea == "ACTIONS")
+                {
+                    linea = reader.ReadLine();
+                    linea = reader.ReadLine();
+                    linea = reader.ReadLine().Replace("\t\t", "");
 
-                    }
 
 
 
                 }
-
-
-
-                Console.ReadLine();
-
-
-
             }
+
+            Console.ReadLine();
         }
     }
 }

@@ -1,7 +1,3 @@
-SETS
-	LETRA = 'A'+'B'+'C'+'d'+'e'+'f'+'s'
-	DIGITO = '0'+'1'+'2'+'5'+'6'+'8'+'4''9'
-	CHARSET = CHR(32)+CHR(254)
 TOKENS
 	TOKEN 1 = DIGITO DIGITO*
 	TOKEN 2 = '"' CHARSET '"'|''' CHARSET '''
@@ -19,6 +15,10 @@ TOKENS
 	TOKEN 15 = 'M''O''D'
 	TOKEN 16 = 'D''I''V'
 	TOKEN 3 = LETRA ( LETRA | DIGITO )*
+SETS
+	LETRA = 'A'+'B'+'C'+'d'+'e'+'f'+'s'
+	DIGITO = '0'+'1'+'2'+'5'+'6'+'8'+'4''9'
+	CHARSET = CHR(32)+CHR(254)
 ACTIONS
 	RESERVADAS()
 	{
