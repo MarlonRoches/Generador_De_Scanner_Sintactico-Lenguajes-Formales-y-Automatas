@@ -16,6 +16,7 @@ namespace Proyecto_Lenguajes
             var linea = reader.ReadLine();
             var SETS = new Dictionary<string, List<string>>();
             var TOKENS = new Dictionary<string,string>();
+            var Error = new Dictionary<string,string>();
             while (linea != null)
             {
 
@@ -54,14 +55,22 @@ namespace Proyecto_Lenguajes
                     linea = reader.ReadLine();
                     linea = reader.ReadLine();
                     linea = reader.ReadLine().Replace("\t\t", "");
+                    while (!linea.Contains("}"))
+                    {
 
+                        linea = reader.ReadLine().Replace("\t\t", "");
 
-
-
+                    }
+                    linea = reader.ReadLine();
+                }
+                if (linea.Contains("ERROR"))
+                {
+                    Error.Add(linea.Replace(" ", "").Split('=')[1], linea.Replace(" ", "").Split('=')[0]);
+                    linea = reader.ReadLine();
                 }
             }
-
-            Console.ReadLine();
+            
+                Console.ReadLine();
         }
     }
 }
