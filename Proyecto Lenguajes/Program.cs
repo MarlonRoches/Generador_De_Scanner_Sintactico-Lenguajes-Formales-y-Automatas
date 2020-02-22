@@ -15,20 +15,50 @@ namespace Proyecto_Lenguajes
             var reader = new StreamReader(path);
             var linea = reader.ReadLine();
             linea = linea.Replace(" ","");
-            var SETS = new Dictionary<string, List<string>>();
+            var SETS = new Dictionary<string, List<char>>();
             var TOKENS = new Dictionary<string,string>();
             var Error = new Dictionary<string,string>();
             var Actions = new Dictionary<string,string>();
             var MegaExpresion = string.Empty;
             var comillas = '"';
+
             //leer Sets
             while (linea != "TOKENS")
             {
-                linea = reader.ReadLine();
+               linea = reader.ReadLine();
+                if (linea == "TOKENS")
+                {
+                    break;
+                }
+                var SetId = linea.Substring(0,linea.IndexOf('=')).Replace("\t","");
+               var TokensArray = linea.Remove(0,linea.IndexOf('=')+1).Trim().Split('+');
+                //validar chars
+                 foreach (var item in TokensArray)
+                 {
+                    var lol = item.Replace("'", "").Replace("..", "").Replace("...","").ToCharArray();
+                    if (!SETS.ContainsKey(SetId))
+                    {
+                        SETS.Add(SetId, new List<char>());
+                    }
+                    if (lol.Length==1)
+                    {
+                        SETS[SetId].Add(lol[0]);
+                    }
+                    else
+                    {
 
+                        for (int i = lol[0]; i <= lol[1]; i++)
+                        {
+
+                            SETS[SetId].Add((char)i);
+                        }
+                    }
+                   
+                 }
+                
             }
-            //leer
 
+            //leer
             linea = reader.ReadLine();
                 while (linea != "ACTIONS")
             {
@@ -51,8 +81,7 @@ namespace Proyecto_Lenguajes
             }
 
 
-
-
+            #region Comentado
             //while (linea != null)
             //{
 
@@ -149,6 +178,9 @@ namespace Proyecto_Lenguajes
             //    Console.WriteLine($"{item.Key} => {item.Value}");
 
             //}
+
+            #endregion
+
 
             Console.ReadLine();
         }
