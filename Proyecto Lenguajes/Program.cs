@@ -4,14 +4,14 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Proyecto_Lenguajes;
 namespace Proyecto_Lenguajes
 {
     class Program
     {
         static void Main(string[] args)
         {
-            var path = Console.ReadLine();
+            var path = "C:\\Users\\roche\\Desktop\\Lenguajes\\ProyectoLenguajes\\Archivo Prueba.txt";
             var reader = new StreamReader(path);
             var linea = reader.ReadLine();
             linea = linea.Replace(" ","");
@@ -21,7 +21,7 @@ namespace Proyecto_Lenguajes
             var Actions = new Dictionary<string,string>();
             var MegaExpresion = string.Empty;
             var comillas = '"';
-
+            //C:\Users\roche\Desktop\Lenguajes\ProyectoLenguajes\Archivo Prueba.txt
             //leer Sets
             while (linea != "TOKENS")
             {
@@ -35,9 +35,10 @@ namespace Proyecto_Lenguajes
                 //validar chars
                  foreach (var item in TokensArray)
                  {
-                    var lol = item.Replace("'", "").Replace("..", "").Replace("...","").ToCharArray();
+                    var lol = item.Replace("..", "").Replace("...","").ToCharArray();
                     if (!SETS.ContainsKey(SetId))
                     {
+                        SetId = SetId.Replace("  "," ");
                         SETS.Add(SetId, new List<char>());
                     }
                     if (lol.Length==1)
@@ -70,83 +71,55 @@ namespace Proyecto_Lenguajes
                 }
                 else
                 {
-                linea =linea.Replace("\t","").Replace("'", "").Replace("  ", " ");
+                linea =linea.Replace("\t","").Replace("  ", " ");
 
                 }
-                var TokenId = linea.Substring(0,linea.IndexOf('='));
+                var TokenId = linea.Substring(0,linea.IndexOf('=')).Replace("  ", " ");
                 var Expresion = linea.Remove(0,linea.IndexOf('=')+1).Trim();
                 TOKENS.Add(TokenId, Expresion);
-                MegaExpresion += $"({Expresion})|";
+                MegaExpresion += $"({Expresion})☼";//☼ = 15
                 linea = reader.ReadLine();
             }
-
-
+            MegaExpresion += "Ø";//Ø=157
+            Arbol_De_Expresiones.Instance.GenerarArbol(MegaExpresion,TOKENS,SETS.Keys.ToArray());
+            
             #region Comentado
-            //while (linea != null)
-            //{
+            while (linea != null)
+            {
+                if (linea == "ACTIONS")
+                {
+                    linea = reader.ReadLine();
+                    linea = reader.ReadLine();
+                    linea = reader.ReadLine().Replace("\t\t", "");
+                    while (!linea.Contains("\t}"))
+                    {
 
-            //    if (linea == "SETS ")
-            //    {
-            //        linea = reader.ReadLine().Replace("\t", "").Replace(" ", "");
-            //        while (linea != "TOKENS" &&  linea != "ACTIONS")
-            //        {//partimos y quitmos espacios
-            //            var arreglo = linea.Split('=');
-            //            SETS.Add(arreglo[0], new List<string>());
-            //            var items = arreglo[1].Replace("'","");
-            //            foreach (var item in items.Split('+'))
-            //            {
-            //                SETS[arreglo[0]].Add(item);
-            //            }
-            //            linea = reader.ReadLine().Replace("\t", "").Replace(" ", "");
-            //        }
+                        Actions.Add(linea.Split('=')[0],linea.Split('=')[1]);
+                        linea = reader.ReadLine().Replace("\t\t", "");
+                    }
+                    linea = reader.ReadLine();
+                }
+                if (linea.Contains("ERROR"))
+                {
+                    Error.Add(linea.Replace(" ", "").Split('=')[1], linea.Replace(" ", "").Split('=')[0]);
+                    linea = reader.ReadLine();
+                }
 
-            //    }
-            //    if (linea == "TOKENS")
-            //    {
-            //        linea = reader.ReadLine().Replace("\t", "");
-            //        while (linea != "SETS" && linea != "ACTIONS")
-            //        {//partimos y quitmos espacios
-            //            var SplitIndex = linea.IndexOf('=');
-            //            var id = linea.Substring(0, SplitIndex - 1);
-            //            linea = linea.Remove(0, SplitIndex+2);
-            //            var Token = linea.Replace("'","");
-            //            TOKENS.Add(Token, id);
-            //            linea = reader.ReadLine().Replace("\t", "");
-            //        }
-            //    }
+                    linea = reader.ReadLine();
+            }
+            Console.Clear();
 
-            //    if (linea == "ACTIONS")
-            //    {
-            //        linea = reader.ReadLine();
-            //        linea = reader.ReadLine();
-            //        linea = reader.ReadLine().Replace("\t\t", "");
-            //        while (!linea.Contains("\t}"))
-            //        {
+            Console.WriteLine("Sets");
+            Console.WriteLine("");
+            foreach (var item in SETS)
+            {
+                foreach (var nodo in item.Value)
+                {
+                    Console.WriteLine($"{item.Key} => {nodo}");
+                }
+            }
 
-            //            Actions.Add(linea.Split('=')[0],linea.Split('=')[1]);
-            //            linea = reader.ReadLine().Replace("\t\t", "");
-            //        }
-            //        linea = reader.ReadLine();
-            //    }
-            //    if (linea.Contains("ERROR"))
-            //    {
-            //        Error.Add(linea.Replace(" ", "").Split('=')[1], linea.Replace(" ", "").Split('=')[0]);
-            //        linea = reader.ReadLine();
-            //    }
-            //}
-            //Console.Clear();
-
-            //Console.WriteLine("Sets");
-            //Console.WriteLine("");
-            //foreach (var item in SETS)
-            //{
-            //    foreach (var nodo in item.Value)
-            //    {
-            //        Console.WriteLine($"{item.Key} => {nodo}");
-            //    }
-            //}
-
-            //Console.WriteLine("");
+            Console.WriteLine("");
 
             //Console.WriteLine("Tokens");
             //Console.WriteLine("");
@@ -181,7 +154,7 @@ namespace Proyecto_Lenguajes
 
             #endregion
 
-
+            Console.WriteLine(MegaExpresion);
             Console.ReadLine();
         }
     }
