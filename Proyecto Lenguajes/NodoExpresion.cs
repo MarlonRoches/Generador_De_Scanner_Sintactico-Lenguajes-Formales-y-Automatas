@@ -8,12 +8,14 @@ namespace Proyecto_Lenguajes
 {
     class NodoExpresion
     {
-        public NodoExpresion Izquierdo = new NodoExpresion();
-        public NodoExpresion Derecho = new NodoExpresion(); 
-        public NodoExpresion Padre = new NodoExpresion(); 
+        public NodoExpresion Single { get; set; }
+        public NodoExpresion C1 { get; set; }
+        public NodoExpresion C2 { get; set; }
+        public NodoExpresion Padre { get; set; }
         public bool Nullable { get; set; }
         public string First { get; set; }
         public string Last { get; set; }
+        public int id { get; set; }
         public string Nombre{ get; set; }
     }
 }

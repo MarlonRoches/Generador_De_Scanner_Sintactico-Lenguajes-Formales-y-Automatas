@@ -20,7 +20,9 @@ namespace Proyecto_Lenguajes
         }
 
         public List<NodoExpresion> SubArboles = new List<NodoExpresion>();
-        public Dictionary<int, NodoExpresion> Diccionario_Nodos = new Dictionary<int, NodoExpresion>(); 
+        public Dictionary<int, NodoExpresion> Diccionario_Nodos = new Dictionary<int, NodoExpresion>();
+        public Dictionary<string, NodoExpresion> Substituicion = new Dictionary<string, NodoExpresion>();
+        public int n = 1;
         public void GenerarArbol(string MegaExpresion, Dictionary<string, string> Tokens, string[]SETS)
         {
             //regularizacion
@@ -89,13 +91,15 @@ namespace Proyecto_Lenguajes
             //representacion
             //Original
             var n = 0;
-            var diccionario = new Dictionary<string, string>();
+            var DiccionarioCamino = new Dictionary<string, string>();
             string masPequeño = ExpresionActual.Substring(1, ExpresionActual.Length-2);
-            var camino = new List<string>();
+            var Camino = new List<string>();
             //ir al mas pequeño
 
             if (masPequeño.Contains('('))
             {
+                var xd = Indexado(masPequeño, SETS);
+                masPequeño = xd.Value;
                 while (masPequeño.Contains('('))
                 {
                     var index1 = masPequeño.IndexOf('(')+1;
@@ -104,23 +108,54 @@ namespace Proyecto_Lenguajes
                     var aux = masPequeño.Substring(index1, lol);
                     masPequeño = masPequeño.Replace(aux, $"[{n}]");
                         n++;
-                    camino.Add(masPequeño);
-                    diccionario.Add($"[{n}]", masPequeño);
+                    Camino.Add(masPequeño);
+                    DiccionarioCamino.Add($"[{n}]", masPequeño);
                     masPequeño = aux;
                 }
+                Camino.Add(masPequeño);
             }
             else
             {
 
-               var xd = Indexado(masPequeño,SETS);
-            //*
+                var Compresion = Indexado(masPequeño,SETS);
+                var descompresion = Compresion.Key;
+                masPequeño = Compresion.Value;
+                
+                //*
                 var Asterisco_index = masPequeño.IndexOf('*');
-                //+     _index
+                if (Asterisco_index!=-1)
+                {
+                    var Aconstruir  = masPequeño.Substring(Asterisco_index - 1, 2);
+                    // agregar y construir
+                    var xdd = Asterisco(Aconstruir,descompresion);
+                    masPequeño = masPequeño.Replace(Aconstruir,xdd);
+                }
+                
+                
+                //+     
                 var Mas_index = masPequeño.IndexOf('+');
-            //.     _index
+                if (Mas_index != -1)
+                {
+
+                    // agregar y construir
+                }
+                //.     
                 var Concatenacion_index = masPequeño.IndexOf('.');
-            //|     _index
+                if (Concatenacion_index != -1)
+                {
+                    var Aconstruir = masPequeño.Substring(Asterisco_index - 1, 2);
+
+                    var eliminar = Concatenacion(masPequeño,descompresion);
+                    // agregar y construir
+                }
+                //|     
+
                 var Or_index = masPequeño.IndexOf('|');
+                if (Or_index != -1)
+                {
+
+                    // agregar y construir
+                }
             }
         }
         string ArmarSubexpresionInterior(string original, string armar)
@@ -131,37 +166,118 @@ namespace Proyecto_Lenguajes
         {
             return null;
         }
-        NodoExpresion Asterisco(string expresion)
+        string Asterisco(string expresion, Dictionary<string, string> diccionaro)
         {
-            return null;
+            var devolver = new NodoExpresion();
+            expresion = expresion.Replace("*", "");
 
+            //ir a traer
+            if (Substituicion.ContainsKey(expresion))
+            {
+            //existe, asignar
+                //
+            }
+            else
+            //si no existe ninguno, uno nuevo
+            {
+                var hoja= new NodoExpresion()
+                {
+                    id = n,
+                    Nombre = diccionaro[expresion],
+                    Nullable = false,
+                    Padre = devolver
+                };
+                hoja.First += $"{n},";
+                hoja.Last += $"{n},";
+
+
+                devolver.Nombre = "*";
+                devolver.Single = hoja;
+                devolver.First = devolver.Single.First;
+                devolver.Last= devolver.Single.Last;
+                devolver.Nullable = true;
+                n++;
+            }
+            Substituicion.Add($"[{n}]",devolver);
+
+            return $"[{n}]";
         }
-        NodoExpresion Concatenacion(string expresion)
+        string Concatenacion(string expresion, Dictionary<string, string> descompresion)
         {
             var nuevo = new NodoExpresion();
-            var izq = expresion.Split('|')[0];
-            var der = expresion.Split('|')[1];
-            nuevo.Nombre = "*";
-            nuevo.Izquierdo = new NodoExpresion()
+            var izq = expresion.Split('.')[0];
+            var der = expresion.Split('.')[1];
+            if (Substituicion.ContainsKey(izq))
             {
-                Nombre = izq,
-                First = izq,
-                Last = izq,
-                Nullable = false,
-                Padre = nuevo,
+                nuevo.C1 = Substituicion[izq];
 
-            };
-            nuevo.Derecho = new NodoExpresion()
+            }
+            else
             {
-                Nombre = der,
-                First = der,
-                Last = der,
-                Nullable = false,
-                Padre = nuevo,
-
-            };
+                nuevo.C1 = new NodoExpresion()
+                {
+                    Nombre = descompresion[izq],
+                    First = $"{n},",
+                    Last = $"{n},",
+                    Nullable = false,
+                    Padre = nuevo,
+                    id = n,
+                };
+                n++;
+            }
+            if (Substituicion.ContainsKey(der))
+            {
+                nuevo.C2 = Substituicion[der];
+            }
+            else
+            {
+                nuevo.C2 = new NodoExpresion()
+                {
+                    Nombre = descompresion[der],
+                    First = $"{n},",
+                    Last = $"{n},",
+                    Nullable = false,
+                    Padre = nuevo,
+                    id = n,
+                };
+                n++;
+            }
+            nuevo.Nombre = ".";
             //validar nullabilidad de el nuevo
-            return nuevo;
+            if (nuevo.C1.Nullable && nuevo.C2.Nullable)
+            {
+                nuevo.Nullable = true;
+            }
+            else
+            {
+                nuevo.Nullable = false;
+            }
+
+
+
+            //first
+            if (nuevo.C1.Nullable == true)
+            {//true
+                nuevo.First = $"{nuevo.C1.First}{nuevo.C2.First}";
+            }
+            else
+            {//false
+                nuevo.First = nuevo.C1.First;
+
+            }
+            //last
+            if (nuevo.C2.Nullable ==true  )
+            {//true 
+                nuevo.Last = $"{nuevo.C1.Last}{nuevo.C2.Last}";
+
+            }
+            else
+            {//false
+                nuevo.Last = nuevo.C2.Last;
+            }
+            Substituicion.Add($"[{n}]", nuevo);
+
+            return $"[{n}]";
         }
         NodoExpresion Or(string expresion)
         {
@@ -170,7 +286,7 @@ namespace Proyecto_Lenguajes
             var der = expresion.Split('|')[1];
             nuevo.Nombre = "|";
             //ir a traer
-            nuevo.Izquierdo = new NodoExpresion()
+            nuevo.C1 = new NodoExpresion()
             {
                 Nombre = izq,
                 First = izq,
@@ -179,7 +295,7 @@ namespace Proyecto_Lenguajes
                 Padre=nuevo,
 
             };
-            nuevo.Derecho = new NodoExpresion()
+            nuevo.C2 = new NodoExpresion()
             {
                 Nombre = der,
                 First = der,
@@ -204,7 +320,7 @@ namespace Proyecto_Lenguajes
             {
                 if (expresion.Contains(SETS[i]))
                 {
-                    expresion = expresion.Replace(SETS[i], ((char)i).ToString());
+                    expresion = expresion.Replace(SETS[i], ((char)(i)).ToString());
                     diccionario.Add(((char)i).ToString(),SETS[i]);
                 
                 }
