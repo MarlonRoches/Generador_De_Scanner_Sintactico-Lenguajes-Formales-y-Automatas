@@ -57,7 +57,7 @@ namespace Proyecto_Lenguajes
             Raiz = ObtenerRaiz(SubArboles[0],SubArboles[1]);
             CalcularFollows();
             Alfabeto = ObtenerALfabeto();
-           ObtenerAFD();
+          // ObtenerAFD();
             return Raiz;
         }
         void LecturaDinamica(string ExpresionActual,string[] SETS)

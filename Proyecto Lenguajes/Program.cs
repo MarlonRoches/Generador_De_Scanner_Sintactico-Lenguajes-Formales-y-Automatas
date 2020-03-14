@@ -11,9 +11,11 @@ namespace Proyecto_Lenguajes
     {
         static void Main(string[] args)
         {
-            var path = "C:\\Users\\roche\\Desktop\\Lenguajes\\ProyectoLenguajes\\Archivo Prueba.txt";
+            Console.WriteLine("Arrastrar El Archivo de prueba hacia la consola");
+            var linea_actual = 0;
+            var path = Console.ReadLine();
             var reader = new StreamReader(path);
-            var linea = reader.ReadLine();
+            var linea = reader.ReadLine(); linea_actual++;
             linea = linea.Replace(" ","");
             var SETS = new Dictionary<string, List<char>>();
             var TOKENS = new Dictionary<string,string>();
@@ -23,9 +25,10 @@ namespace Proyecto_Lenguajes
             var comillas = '"';
             //C:\Users\roche\Desktop\Lenguajes\ProyectoLenguajes\Archivo Prueba.txt
             //leer Sets
+          
             while (linea != "TOKENS")
             {
-               linea = reader.ReadLine();
+               linea = reader.ReadLine(); linea_actual++;
                 if (linea == "TOKENS")
                 {
                     break;
@@ -60,28 +63,72 @@ namespace Proyecto_Lenguajes
             }
 
             //leer
-            linea = reader.ReadLine();
-                while (linea != "ACTIONS")
-            {
+            linea = reader.ReadLine(); linea_actual++;
+            while (linea != "ACTIONS")
+                {
                 
                 if (linea.Contains("'''"))
                 {
 
-                linea = linea.Replace("\t","").Replace("'''", "'").Replace("  ", " ").Replace(("'"+'"'+"'").ToString(),comillas.ToString());
+                    linea = linea.Replace("\t","").Replace("'''", "'").Replace("  ", " ").Replace(("'"+'"'+"'").ToString(),comillas.ToString());
                 }
                 else
                 {
-                linea =linea.Replace("\t","").Replace("  ", " ");
+                     linea =linea.Replace("\t","").Replace("  ", " ");
 
                 }
-                var TokenId = linea.Substring(0,linea.IndexOf('=')).Replace("  ", " ");
-                var Expresion = linea.Remove(0,linea.IndexOf('=')+1).Trim();
-                TOKENS.Add(TokenId, Expresion);
-                MegaExpresion += $"({Expresion})☼";//☼ = 15
-                linea = reader.ReadLine();
+
+                if (linea == "" || linea == " " || linea == "  ")
+                {
+
+                }
+                else
+                {
+
+                    var TokenId = linea.Substring(0,linea.IndexOf('=')).Replace("  ", " ");
+                    var Expresion = linea.Remove(0,linea.IndexOf('=')+1).Trim();
+                    if (TOKENS.ContainsKey(TokenId))
+                    {
+                        //ya existe el token
+                        Console.Clear();
+                        Console.BackgroundColor = ConsoleColor.White;
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine($"Error en la linea {linea_actual}");
+                        Console.WriteLine($"{TokenId} => {Expresion}  repetido");
+                        
+                        
+                        Console.ReadLine();
+                        Environment.Exit(0);
+                    }
+                    else
+                    {
+                    TOKENS.Add(TokenId, Expresion);
+
+                    }
+
+                    
+                    MegaExpresion += $"({Expresion})☼";//☼ = 15
+                }
+                linea = reader.ReadLine(); linea_actual++;
             }
             MegaExpresion += "Ø";//Ø=157
-            var Raiz =Arbol_De_Expresiones.Instance.Generar_Arbol(MegaExpresion,SETS.Keys.ToArray());
+            var Raiz = new NodoExpresion();
+            try
+            {
+            Raiz =Arbol_De_Expresiones.Instance.Generar_Arbol(MegaExpresion,SETS.Keys.ToArray());
+
+            }
+            catch (Exception)
+            {
+                Console.Clear();
+                Console.BackgroundColor = ConsoleColor.White;
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Error => Token no encontrado");
+
+                Console.ReadLine();
+                Environment.Exit(0);
+                throw;
+            }
             //Arbol_De_Expresiones.Instance.Inorder(Arbol_De_Expresiones.Instance.Diccionario_Nodos);
             ///mostrar SETS
             foreach (var set in SETS)
