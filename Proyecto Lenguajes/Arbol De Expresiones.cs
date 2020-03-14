@@ -8,7 +8,6 @@ namespace Proyecto_Lenguajes
 {
     class Arbol_De_Expresiones
     {
-
         private static Arbol_De_Expresiones _instance = null;
         public static Arbol_De_Expresiones Instance
         {
@@ -18,18 +17,17 @@ namespace Proyecto_Lenguajes
                 return _instance;
             }
         }
-
         public List<NodoExpresion> SubArboles = new List<NodoExpresion>();
         public Dictionary<string, NodoExpresion> Diccionario_Nodos = new Dictionary<string, NodoExpresion>();
+        public static NodoExpresion Raiz = new NodoExpresion();
         public Dictionary<string, NodoExpresion> Substituicion = new Dictionary<string, NodoExpresion>();
         static int n = 1;
-        static int p = 1;
-        public void GenerarArbol(string MegaExpresion, Dictionary<string, string> Tokens, string[]SETS)
+        public NodoExpresion GenerarArbol(string MegaExpresion, Dictionary<string, string> Tokens, string[]SETS)
         {
             //regularizacion
             var comillas = '"';
             var comilla = "'";
-            MegaExpresion = MegaExpresion.Replace(" *", "*").Replace(" +", "+").Replace($" {comillas}", $"{comillas}").Replace($"{comillas} ", $"{comillas}").Replace($" {comilla}", $"{comilla}").Replace($"{comilla} ", $"{comilla}").Replace("''", ".").Replace("('", "(").Replace("')", ")").Replace(" ( ", "(").Replace(" | ", "|").Replace(" )", ")").Replace(" ", ".");
+            MegaExpresion = MegaExpresion.Replace(" ?", "?").Replace(" *", "*").Replace(" +", "+").Replace($" {comillas}", $"{comillas}").Replace($"{comillas} ", $"{comillas}").Replace($" {comilla}", $"{comilla}").Replace($"{comilla} ", $"{comilla}").Replace("''", ".").Replace("('", "(").Replace("')", ")").Replace(" ( ", "(").Replace(" | ", "|").Replace(" )", ")").Replace(" ", ".");
             var arreglo = MegaExpresion.Substring(0, MegaExpresion.Length).Split('☼');
             for (int i = 0; i < SETS.Length; i++)
             {
@@ -41,13 +39,19 @@ namespace Proyecto_Lenguajes
             }
 
             // armar arbol general
-
+            while (SubArboles.Count!=2)
+            {
+                SubArboles[0] = JuntarArbolConOr(SubArboles[0], SubArboles[1]);
+                SubArboles.RemoveAt(1);
+            }
+            Raiz = ObtenerRaiz(SubArboles[0],SubArboles[1]);
+            return Raiz;
         }
         void LecturaDinamica(string ExpresionActual,string[] SETS)
         {
             //representacion
             //Original
-            var DiccionarioCamino = new Dictionary<string, string>();
+           // var DiccionarioCamino = new Dictionary<string, string>();
             string masPequeño = string.Empty;
             if (ExpresionActual.Length==1)
             {
@@ -63,8 +67,6 @@ namespace Proyecto_Lenguajes
 
             if (masPequeño.Contains('('))
             {
-                var xd = Indexado(masPequeño, SETS);
-                masPequeño = xd.Value;
                 while (!Substituicion.ContainsKey(masPequeño))
                 {
                     var index1 = masPequeño.IndexOf('(')+1;
@@ -142,10 +144,10 @@ namespace Proyecto_Lenguajes
 
                 if (Asterisco_index!=-1 && completado == false)
                 {
-                    var Aconstruir  = masPequeño.Substring(Asterisco_index - 1, 2);
-                    // agregar y construir
-                    var xdd = Asterisco(Aconstruir,descompresion);
-                    masPequeño = masPequeño.Replace(Aconstruir,xdd);
+                        var Aconstruir = A_Construir(masPequeño, Asterisco_index, "*");
+                        // agregar y construir
+                        var Referencia = Asterisco(Aconstruir,descompresion);
+                    masPequeño = masPequeño.Replace(Aconstruir,Referencia);
                 }
                 }
 
@@ -156,14 +158,27 @@ namespace Proyecto_Lenguajes
                     var Mas_index = masPequeño.IndexOf('+');
                     if (Mas_index != -1 && completado == false)
                     {
-                        var Aconstruir = masPequeño.Substring(Mas_index - 1, 2);
+                        var Aconstruir = A_Construir(masPequeño, Mas_index, "+");
                         // agregar y construir
-                        var xdd = Mas(Aconstruir, descompresion);
-                        masPequeño = masPequeño.Replace(Aconstruir, xdd);
+                        var Referencia = Mas(Aconstruir, descompresion);
+                        masPequeño = masPequeño.Replace(Aconstruir, Referencia);
                         // agregar y construir
                     }
                 }
+                //?     
+                while (masPequeño.Contains('?') && completado == false)
+                {
 
+                    var Mas_index = masPequeño.IndexOf('?');
+                    if (Mas_index != -1 && completado == false)
+                    {
+                        var Aconstruir = A_Construir(masPequeño, Mas_index, "?");
+                        // agregar y construir
+                        var Referencia = Interrogacion(Aconstruir, descompresion);
+                        masPequeño = masPequeño.Replace(Aconstruir, Referencia);
+                        // agregar y construir
+                    }
+                }
                 //.     
                 while (masPequeño.Contains('.') && completado == false)
                 {
@@ -208,11 +223,132 @@ namespace Proyecto_Lenguajes
                 }
             }
         }
-
-        string ArmarSubexpresionInterior(string original, string armar)
+        string ArmarInterior(string ExpresionActual, string[]SETS)
         {
-            return "";
+            var completado = false;
+            var Compresion = Indexado(ExpresionActual, SETS);
+            var descompresion = Compresion.Key;
+            ExpresionActual = Compresion.Value;
+            //no contiene ningun operador
+            if (!ExpresionActual.Contains('*') && !ExpresionActual.Contains('|') && !ExpresionActual.Contains('+') && !ExpresionActual.Contains('?') && !ExpresionActual.Contains('.'))
+            {
+                var nievo = new NodoExpresion()
+                {
+                    Nombre = ExpresionActual,
+                    id = n,
+                    First = $"{n},",
+                    Last = $"{n},",
+                    Nullable = false,
+
+                };
+                SubArboles.Add(nievo);
+                n++;
+                completado = true;
+            }
+            if (ExpresionActual == "*" || ExpresionActual == "+" || ExpresionActual == "?" || ExpresionActual == "." || ExpresionActual == "|")
+            {
+                //armar sub arbol especial
+                var nievo = new NodoExpresion()
+                {
+                    Nombre = ExpresionActual,
+                    id = n,
+                    First = $"{n},",
+                    Last = $"{n},",
+                    Nullable = false,
+
+                };
+                SubArboles.Add(nievo);
+                n++;
+                completado = true;
+            }
+            //*
+            while (ExpresionActual.Contains('*') && completado == false)
+            {
+                var Asterisco_index = ExpresionActual.IndexOf('*');
+
+                if (Asterisco_index != -1 && completado == false)
+                {
+                    var Aconstruir = A_Construir(ExpresionActual, Asterisco_index, "*");
+                    // agregar y construir
+                    var Referencia = Asterisco(Aconstruir, descompresion);
+                    ExpresionActual = ExpresionActual.Replace(Aconstruir, Referencia);
+                }
+            }
+
+            //+     
+            while (ExpresionActual.Contains('+') && completado == false)
+            {
+
+                var Mas_index = ExpresionActual.IndexOf('+');
+                if (Mas_index != -1 && completado == false)
+                {
+                    var Aconstruir = A_Construir(ExpresionActual, Mas_index, "+");
+                    // agregar y construir
+                    var Referencia = Mas(Aconstruir, descompresion);
+                    ExpresionActual = ExpresionActual.Replace(Aconstruir, Referencia);
+                    // agregar y construir
+                }
+            }
+            //?     
+            while (ExpresionActual.Contains('?') && completado == false)
+            {
+
+                var Mas_index = ExpresionActual.IndexOf('?');
+                if (Mas_index != -1 && completado == false)
+                {
+                    var Aconstruir = A_Construir(ExpresionActual, Mas_index, "?");
+                    // agregar y construir
+                    var Referencia = Interrogacion(Aconstruir, descompresion);
+                    ExpresionActual = ExpresionActual.Replace(Aconstruir, Referencia);
+                    // agregar y construir
+                }
+            }
+            //.     
+            while (ExpresionActual.Contains('.') && completado == false)
+            {
+
+                var Concatenacion_index = ExpresionActual.IndexOf('.');
+                if (Concatenacion_index != -1 && completado == false)
+                {
+                    var Aconstruir = A_Construir(ExpresionActual, Concatenacion_index, ".");
+
+                    var eliminar = Concatenacion(Aconstruir, descompresion);
+
+                    // agregar y construir
+                    ExpresionActual = ExpresionActual.Replace(Aconstruir, eliminar);
+                    if (Substituicion.ContainsKey(ExpresionActual))
+                    {
+                        SubArboles.Add(Substituicion[ExpresionActual]);
+                        completado = true;
+                    }
+                }
+
+            }
+
+            //|
+            while (ExpresionActual.Contains('|') && completado == false)
+            {
+
+                var Concatenacion_index = ExpresionActual.IndexOf('|');
+                if (Concatenacion_index != -1 && completado == false)
+                {
+                    var Aconstruir = A_Construir(ExpresionActual, Concatenacion_index, "|");
+
+                    var eliminar = Or(Aconstruir, descompresion);
+
+                    // agregar y construir
+                    ExpresionActual = ExpresionActual.Replace(Aconstruir, eliminar);
+                    if (Substituicion.ContainsKey(ExpresionActual))
+                    {
+                       // SubArboles.Add(Substituicion[masPequeño]);
+                        completado = true;
+                    }
+                }
+            }
+            return ExpresionActual;
         }
+        //↑↑↑arreglar agregandole un bool para que sepa cuando guardar y cuando no ↑↑↑↑↑↑
+        #region Construcciones
         string Mas(string expresion, Dictionary<string, string> diccionaro)
         {
             var devolver = new NodoExpresion();
@@ -227,7 +363,7 @@ namespace Proyecto_Lenguajes
                 devolver.C1 = nuevo;
                 devolver.First = devolver.C1.First;
                 devolver.Last = devolver.C1.Last;
-                devolver.Nullable = true;
+                devolver.Nullable = false;
                 n++;
                 //existe, asignar
                 //
@@ -250,7 +386,7 @@ namespace Proyecto_Lenguajes
                 devolver.C1 = hoja;
                 devolver.First = devolver.C1.First;
                 devolver.Last = devolver.C1.Last;
-                devolver.Nullable = true;
+                devolver.Nullable = false;
                 n++;
             }
             if (Substituicion.ContainsKey($"[{n}]"))
@@ -323,8 +459,6 @@ namespace Proyecto_Lenguajes
             var nuevo = new NodoExpresion();
             var izq = expresion.Split('.')[0];
             var der = expresion.Split('.')[1];
-           
-            
             if (Substituicion.ContainsKey(izq))
             {//obtener nodo representativo
                 nuevo.C1 = Substituicion[izq];
@@ -402,7 +536,6 @@ namespace Proyecto_Lenguajes
             }
 
 
-
             //first
             if (nuevo.C1.Nullable == true)
             {//true
@@ -413,8 +546,9 @@ namespace Proyecto_Lenguajes
                 nuevo.First = nuevo.C1.First;
 
             }
+
             //last
-            if (nuevo.C2.Nullable ==true  )
+            if (nuevo.C2.Nullable == true)
             {//true 
                 nuevo.Last = $"{nuevo.C1.Last}{nuevo.C2.Last}";
 
@@ -423,6 +557,8 @@ namespace Proyecto_Lenguajes
             {//false
                 nuevo.Last = nuevo.C2.Last;
             }
+
+
             if (Substituicion.ContainsKey($"[{n}]"))
             {
                 n++;
@@ -541,29 +677,57 @@ namespace Proyecto_Lenguajes
             return $"[{n}]";
 
         }
-        string Interrogacion(string expresion, Dictionary<string, string> descompresion)
+        string Interrogacion(string expresion, Dictionary<string, string> diccionaro)
         {
-            return "";
-        }
-        NodoExpresion Interrogacion(string expresion)
-        {
-            return null;
+            var devolver = new NodoExpresion();
+            expresion = expresion.Replace("?", "");
 
-        }
-         KeyValuePair<Dictionary<string,string>,string> Indexado(string expresion, string[] SETS)
-        {
-            var diccionario = new Dictionary<string, string>();
-            for (byte i = 0; i < SETS.Length; i++)
+            //ir a traer
+            if (Substituicion.ContainsKey(expresion))
             {
-                if (expresion.Contains(SETS[i]))
-                {
-                    expresion = expresion.Replace(SETS[i], ((char)(i)).ToString());
-                    diccionario.Add(((char)i).ToString(),SETS[i]);
-                
-                }
+                //existe, asignar
+                var nuevo = Substituicion[expresion];
+                devolver.Nombre = "*";
+                devolver.C1 = nuevo;
+                devolver.First = devolver.C1.First;
+                devolver.Last = devolver.C1.Last;
+                devolver.Nullable = false;
+                n++;
+                //existe, asignar
+                //
             }
+            else
+            //si no existe ninguno, uno nuevo
+            {
+                var hoja = new NodoExpresion()
+                {
+                    id = n,
+                    Nombre = diccionaro[expresion],
+                    Nullable = false,
+                    Padre = devolver
+                };
+                hoja.First += $"{n},";
+                hoja.Last += $"{n},";
 
-            return new KeyValuePair<Dictionary<string, string>, string>(diccionario,expresion);
+
+                devolver.Nombre = "?";
+                devolver.C1 = hoja;
+                devolver.First = devolver.C1.First;
+                devolver.Last = devolver.C1.Last;
+                devolver.Nullable = true;
+                n++;
+            }
+            if (Substituicion.ContainsKey($"[{n}]"))
+            {
+                n++;
+                Substituicion.Add($"[{n}]", devolver);
+            }
+            else
+            {
+
+                Substituicion.Add($"[{n}]", devolver);
+            }
+            return $"[{n}]";
         }
         string A_Construir(string completo, int indice,string operacion)
         {
@@ -602,6 +766,21 @@ namespace Proyecto_Lenguajes
             return devolver;
         }
 
+         KeyValuePair<Dictionary<string,string>,string> Indexado(string expresion, string[] SETS)
+        {
+            var diccionario = new Dictionary<string, string>();
+            for (byte i = 0; i < SETS.Length; i++)
+            {
+                if (expresion.Contains(SETS[i]))
+                {
+                    expresion = expresion.Replace(SETS[i], ((char)(i)).ToString());
+                    diccionario.Add(((char)i).ToString(),SETS[i]);
+                
+                }
+            }
+
+            return new KeyValuePair<Dictionary<string, string>, string>(diccionario,expresion);
+        }
         string ArreglarTexto(string expresion,string[] SETS,string[] demas)
         {//fixear el texto por los caracteres que no esten para concatenarlos
             var copia = string.Empty;
@@ -634,128 +813,82 @@ namespace Proyecto_Lenguajes
             }
             else if (copia[0]=='.')
             {
-                var xd = string.Empty;
+                var retorno = string.Empty;
                 for (int i = 1; i < copia.Length; i++)
                 {
-                    xd += copia[i];
+                    retorno += copia[i];
                 }
-                copia = xd;
+                copia = retorno;
             }
             return copia;
         }
-       
-        string ArmarInterior(string masPequeño, string[]SETS)
-        {
-            var completado = false;
-            var Compresion = Indexado(masPequeño, SETS);
-            var descompresion = Compresion.Key;
-            masPequeño = Compresion.Value;
-            var arreglado = ArreglarTexto(masPequeño, SETS, descompresion.Keys.ToArray());
-            masPequeño = arreglado;
-            //no contiene ningun operador
-            if (!masPequeño.Contains('*') && !masPequeño.Contains('|') && !masPequeño.Contains('+') && !masPequeño.Contains('?') && !masPequeño.Contains('.'))
+        NodoExpresion JuntarArbolConOr(NodoExpresion nC1, NodoExpresion nC2)
+       {
+            NodoExpresion nuevo = new NodoExpresion()
             {
-                var nievo = new NodoExpresion()
-                {
-                    Nombre = masPequeño,
-                    id = n,
-                    First = $"{n},",
-                    Last = $"{n},",
-                    Nullable = false,
-
-                };
-                SubArboles.Add(nievo);
-                n++;
-                completado = true;
-            }
-            if (masPequeño == "*" || masPequeño == "+" || masPequeño == "?" || masPequeño == "." || masPequeño == "|")
+                C1 = nC1,
+                C2 = nC2
+            };
+            nuevo.Nombre = "|";
+            //validar nullabilidad de el nuevo
+            if (nuevo.C1.Nullable || nuevo.C2.Nullable)
             {
-                //armar sub arbol especial
-                var nievo = new NodoExpresion()
-                {
-                    Nombre = masPequeño,
-                    id = n,
-                    First = $"{n},",
-                    Last = $"{n},",
-                    Nullable = false,
-
-                };
-                SubArboles.Add(nievo);
-                n++;
-                completado = true;
+                nuevo.Nullable = true;
             }
-            //*
-            while (masPequeño.Contains('*') && completado == false)
+            else
             {
-                var Asterisco_index = masPequeño.IndexOf('*');
-
-                if (Asterisco_index != -1 && completado == false)
-                {
-                    var Aconstruir = A_Construir(masPequeño, Asterisco_index, "*");
-                    // agregar y construir
-                    var xdd = Asterisco(Aconstruir, descompresion);
-                    masPequeño = masPequeño.Replace(Aconstruir, xdd);
-                }
+                nuevo.Nullable = false;
             }
-
-            //+     
-            while (masPequeño.Contains('+') && completado == false)
-            {
-
-                var Mas_index = masPequeño.IndexOf('+');
-                if (Mas_index != -1 && completado == false)
-                {
-                    var Aconstruir = masPequeño.Substring(Mas_index - 1, 2);
-                    // agregar y construir
-                    var xdd = Mas(Aconstruir, descompresion);
-                    masPequeño = masPequeño.Replace(Aconstruir, xdd);
-                    // agregar y construir
-                }
-            }
-
-            //.     
-            while (masPequeño.Contains('.') && completado == false)
-            {
-
-                var Concatenacion_index = masPequeño.IndexOf('.');
-                if (Concatenacion_index != -1 && completado == false)
-                {
-                    var Aconstruir = A_Construir(masPequeño, Concatenacion_index, ".");
-
-                    var eliminar = Concatenacion(Aconstruir, descompresion);
-
-                    // agregar y construir
-                    masPequeño = masPequeño.Replace(Aconstruir, eliminar);
-                    if (Substituicion.ContainsKey(masPequeño))
-                    {
-                        SubArboles.Add(Substituicion[masPequeño]);
-                        completado = true;
-                    }
-                }
-
-            }
-
-            //|
-            while (masPequeño.Contains('|') && completado == false)
-            {
-
-                var Concatenacion_index = masPequeño.IndexOf('|');
-                if (Concatenacion_index != -1 && completado == false)
-                {
-                    var Aconstruir = A_Construir(masPequeño, Concatenacion_index, "|");
-
-                    var eliminar = Or(Aconstruir, descompresion);
-
-                    // agregar y construir
-                    masPequeño = masPequeño.Replace(Aconstruir, eliminar);
-                    if (Substituicion.ContainsKey(masPequeño))
-                    {
-                        SubArboles.Add(Substituicion[masPequeño]);
-                        completado = true;
-                    }
-                }
-            }
-            return masPequeño;
+            nuevo.Nombre = "|";
+            //FIRSTs
+            nuevo.First = $"{nuevo.C1.First}{nuevo.C2.First}";
+            //last
+            nuevo.Last = $"{nuevo.C1.Last}{nuevo.C2.Last}";
+            return nuevo;
         }
+        NodoExpresion ObtenerRaiz(NodoExpresion nC1, NodoExpresion Final)
+        {
+            NodoExpresion nuevo = new NodoExpresion()
+            {
+                C1 = nC1,
+                C2 = Final
+            };
+            nuevo.Nombre = ".";
+            //validar nullabilidad de el nuevo
+            if (nuevo.C1.Nullable && nuevo.C2.Nullable)
+            {
+                nuevo.Nullable = true;
+            }
+            else
+            {
+                nuevo.Nullable = false;
+            }
+            nuevo.Nombre = "|";
+
+            //first
+            if (nuevo.C1.Nullable == true)
+            {//true
+                nuevo.First = $"{nuevo.C1.First}{nuevo.C2.First}";
+            }
+            else
+            {//false
+                nuevo.First = nuevo.C1.First;
+
+            }
+
+            //last
+            if (nuevo.C2.Nullable == true)
+            {//true 
+                nuevo.Last = $"{nuevo.C1.Last}{nuevo.C2.Last}";
+
+            }
+            else
+            {//false
+                nuevo.Last = nuevo.C2.Last;
+            }
+            return nuevo;
+        }
+        #endregion
+        
     }
 }

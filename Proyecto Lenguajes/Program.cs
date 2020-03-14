@@ -81,81 +81,93 @@ namespace Proyecto_Lenguajes
                 linea = reader.ReadLine();
             }
             MegaExpresion += "Ø";//Ø=157
-            Arbol_De_Expresiones.Instance.GenerarArbol(MegaExpresion,TOKENS,SETS.Keys.ToArray());
-            
+            var arbol =Arbol_De_Expresiones.Instance.GenerarArbol(MegaExpresion,TOKENS,SETS.Keys.ToArray());
+            //Arbol_De_Expresiones.Instance.Inorder(Arbol_De_Expresiones.Instance.Diccionario_Nodos);
+            Inorder(arbol);
+            // PRIMERA FASE
             #region Comentado
-            while (linea != null)
-            {
-                if (linea == "ACTIONS")
-                {
-                    linea = reader.ReadLine();
-                    linea = reader.ReadLine();
-                    linea = reader.ReadLine().Replace("\t\t", "");
-                    while (!linea.Contains("\t}"))
-                    {
-
-                        Actions.Add(linea.Split('=')[0],linea.Split('=')[1]);
-                        linea = reader.ReadLine().Replace("\t\t", "");
-                    }
-                    linea = reader.ReadLine();
-                }
-                if (linea.Contains("ERROR"))
-                {
-                    Error.Add(linea.Replace(" ", "").Split('=')[1], linea.Replace(" ", "").Split('=')[0]);
-                    linea = reader.ReadLine();
-                }
-
-                    linea = reader.ReadLine();
-            }
-            Console.Clear();
-
-            Console.WriteLine("Sets");
-            Console.WriteLine("");
-            foreach (var item in SETS)
-            {
-                foreach (var nodo in item.Value)
-                {
-                    Console.WriteLine($"{item.Key} => {nodo}");
-                }
-            }
-
-            Console.WriteLine("");
-
-            //Console.WriteLine("Tokens");
-            //Console.WriteLine("");
-            //foreach (var item in TOKENS)
+            //while (linea != null)
             //{
-            //    Console.WriteLine($"{item.Key} => {item.Value}");
+            //    if (linea == "ACTIONS")
+            //    {
+            //        linea = reader.ReadLine();
+            //        linea = reader.ReadLine();
+            //        linea = reader.ReadLine().Replace("\t\t", "");
+            //        while (!linea.Contains("\t}"))
+            //        {
 
+            //            Actions.Add(linea.Split('=')[0],linea.Split('=')[1]);
+            //            linea = reader.ReadLine().Replace("\t\t", "");
+            //        }
+            //        linea = reader.ReadLine();
+            //    }
+            //    if (linea.Contains("ERROR"))
+            //    {
+            //        Error.Add(linea.Replace(" ", "").Split('=')[1], linea.Replace(" ", "").Split('=')[0]);
+            //        linea = reader.ReadLine();
+            //    }
+
+            //        linea = reader.ReadLine();
+            //}
+            //Console.Clear();
+
+            //Console.WriteLine("Sets");
+            //Console.WriteLine("");
+            //foreach (var item in SETS)
+            //{
+            //    foreach (var nodo in item.Value)
+            //    {
+            //        Console.WriteLine($"{item.Key} => {nodo}");
+            //    }
             //}
 
-            // Console.WriteLine("");
-
-            //Console.WriteLine("Actions");
-            //Console.WriteLine("");
-            //foreach (var item in Actions        )
-            //{
-            //    Console.WriteLine($"{item.Key} => {item.Value}");
-
-            //}
-
-
-
-
             //Console.WriteLine("");
 
-            //Console.WriteLine("Error");
-            //Console.WriteLine("");
-            //foreach (var item in Error)
-            //{
-            //    Console.WriteLine($"{item.Key} => {item.Value}");
+            ////Console.WriteLine("Tokens");
+            ////Console.WriteLine("");
+            ////foreach (var item in TOKENS)
+            ////{
+            ////    Console.WriteLine($"{item.Key} => {item.Value}");
 
-            //}
+            ////}
+
+            //// Console.WriteLine("");
+
+            ////Console.WriteLine("Actions");
+            ////Console.WriteLine("");
+            ////foreach (var item in Actions        )
+            ////{
+            ////    Console.WriteLine($"{item.Key} => {item.Value}");
+
+            ////}
+
+
+
+
+            ////Console.WriteLine("");
+
+            ////Console.WriteLine("Error");
+            ////Console.WriteLine("");
+            ////foreach (var item in Error)
+            ////{
+            ////    Console.WriteLine($"{item.Key} => {item.Value}");
+
+            ////}
 
             #endregion
 
-            Console.WriteLine(MegaExpresion);
+           // Console.WriteLine(MegaExpresion);
             Console.ReadLine();
+            void Inorder(NodoExpresion Root)
+            {
+                if (Root != null)
+                {
+                    Inorder(Root.C1);
+                    Console.Write($"'{Root.Nombre}'" + " ");
+                    Inorder(Root.C2);
+                }
+            }
         }
+            
     }
 }
