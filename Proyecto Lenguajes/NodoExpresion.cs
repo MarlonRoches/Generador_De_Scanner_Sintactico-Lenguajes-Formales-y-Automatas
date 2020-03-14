@@ -8,7 +8,6 @@ namespace Proyecto_Lenguajes
 {
     class NodoExpresion
     {
-        public NodoExpresion Single { get; set; }
         public NodoExpresion C1 { get; set; }
         public NodoExpresion C2 { get; set; }
         public NodoExpresion Padre { get; set; }
