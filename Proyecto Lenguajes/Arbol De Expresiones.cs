@@ -14,7 +14,7 @@ namespace Proyecto_Lenguajes
         public List<NodoExpresion> SubArboles = new List<NodoExpresion>();
         public Dictionary<string, NodoExpresion> Substituicion = new Dictionary<string, NodoExpresion>();
         public List<NodoExpresion> NodosHoja = new List<NodoExpresion>();
-        
+        public Dictionary<string, List<string>> Alfabeto = new Dictionary<string, List<string>>();
         public static Arbol_De_Expresiones Instance
         {
             get
@@ -25,6 +25,8 @@ namespace Proyecto_Lenguajes
         }
 
         public Dictionary<string, string> Follows= new Dictionary<string, string>();
+        public Dictionary<string,List<string>> EstadosD= new Dictionary<string, List<string>>();
+        public Dictionary<string, string> trandD= new Dictionary<string, string>();
 
 
 
@@ -54,6 +56,8 @@ namespace Proyecto_Lenguajes
             }
             Raiz = ObtenerRaiz(SubArboles[0],SubArboles[1]);
             CalcularFollows();
+            Alfabeto = ObtenerALfabeto();
+            ObtenerAFD();
             return Raiz;
         }
         void LecturaDinamica(string ExpresionActual,string[] SETS)
@@ -985,5 +989,86 @@ namespace Proyecto_Lenguajes
                 Inorder(Root.C2);
             }
         }
+        Dictionary<string, List<string>> ObtenerALfabeto()
+        {
+            var aux = new Dictionary<string, List<string>>();
+            foreach (var item in NodosHoja)
+            {
+                if (!aux.ContainsKey(item.Nombre))
+                {
+                    aux.Add(item.Nombre,new List<string>());
+                    aux[item.Nombre].Add(item.id.ToString());
+                }
+                else
+                {
+                    aux[item.Nombre].Add(item.id.ToString());
+
+                }
+            }
+            return aux;
+        }
+        void ObtenerAFD()
+        { var conta = 1;
+            var q = 1;
+            var inicio = Raiz.PrimeraPos.Split(',');
+            var listaaux = new List<string>();
+            foreach (var item in inicio)
+            {
+                if (item!="")
+                {
+                    listaaux.Add(item);
+                }
+            }
+            EstadosD.Add($"Q{q}", listaaux);
+
+            while (true)
+            {
+                var lista = new List<KeyValuePair<string, List<string>>>();
+                var ultimaspos = string.Empty;
+                //para cada nodo dentro del estado
+                foreach (var Estado in EstadosD[$"Q{conta}"])
+                {
+                    //Para cada caracter dentro del alfabeto
+                    foreach (var caracter  in Alfabeto.Keys)
+                    {//para cada nodo que haga match
+                        foreach (var hoja in NodosHoja)
+                        {
+                            if (hoja.Nombre == caracter)
+                            {
+                                ultimaspos += Follows[hoja.id.ToString()];
+                            }
+
+                        }
+                        //agregar a trand
+                        var caminito = ultimaspos.Split(',');
+                        listaaux = ListaSinRepetidosYORdenada(caminito);
+                        q++;
+                        lista.Add(new KeyValuePair<string, List<string>>($"Q{q}", listaaux));
+                        trandD.Add($"Q{conta},{caracter}", $"Q{q}");
+                    }
+                    
+                }
+               
+                foreach (var item in lista)
+                {
+
+                }
+            }
+
+        }
+    
+        List<string> ListaSinRepetidosYORdenada(string[] camio)
+        {
+            var listaaux = new List<string>();
+            foreach (var item in camio)
+            {
+                if (!listaaux.Contains(item) && item != "")
+                {
+                    listaaux.Add(item);
+                }
+            }
+            return null;
+        }
+
     }
 }

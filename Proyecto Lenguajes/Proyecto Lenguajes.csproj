@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Arbol De Expresiones.cs" />
+    <Compile Include="Estado.cs" />
     <Compile Include="NodoExpresion.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
