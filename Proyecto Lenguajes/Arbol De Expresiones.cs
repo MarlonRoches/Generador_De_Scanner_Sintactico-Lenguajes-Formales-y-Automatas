@@ -9,6 +9,12 @@ namespace Proyecto_Lenguajes
     class Arbol_De_Expresiones
     {
         private static Arbol_De_Expresiones _instance = null;
+        
+        public static NodoExpresion Raiz = new NodoExpresion();
+        public List<NodoExpresion> SubArboles = new List<NodoExpresion>();
+        public Dictionary<string, NodoExpresion> Substituicion = new Dictionary<string, NodoExpresion>();
+        public List<NodoExpresion> NodosHoja = new List<NodoExpresion>();
+        
         public static Arbol_De_Expresiones Instance
         {
             get
@@ -17,12 +23,14 @@ namespace Proyecto_Lenguajes
                 return _instance;
             }
         }
-        public List<NodoExpresion> SubArboles = new List<NodoExpresion>();
-        public Dictionary<string, NodoExpresion> Diccionario_Nodos = new Dictionary<string, NodoExpresion>();
-        public static NodoExpresion Raiz = new NodoExpresion();
-        public Dictionary<string, NodoExpresion> Substituicion = new Dictionary<string, NodoExpresion>();
-        static int n = 1;
-        public NodoExpresion GenerarArbol(string MegaExpresion, Dictionary<string, string> Tokens, string[]SETS)
+
+        public Dictionary<string, string> Follows= new Dictionary<string, string>();
+
+
+
+        static int IndiceSubstiucion = 1;
+
+        public NodoExpresion Generar_Arbol(string MegaExpresion, string[]SETS)
         {
             //regularizacion
             var comillas = '"';
@@ -45,6 +53,7 @@ namespace Proyecto_Lenguajes
                 SubArboles.RemoveAt(1);
             }
             Raiz = ObtenerRaiz(SubArboles[0],SubArboles[1]);
+            CalcularFollows();
             return Raiz;
         }
         void LecturaDinamica(string ExpresionActual,string[] SETS)
@@ -111,14 +120,16 @@ namespace Proyecto_Lenguajes
                     var nievo = new NodoExpresion()
                     {
                         Nombre = masPequeño,
-                        id=n,
-                        First=$"{n},",
-                        Last=$"{n},",
+                        id=IndiceSubstiucion,
+                        PrimeraPos=$"{IndiceSubstiucion},",
+                        UltimaPos=$"{IndiceSubstiucion},",
                         Nullable=false,
                         
                     };
+                    NodosHoja.Add(nievo);
+
                     SubArboles.Add(nievo);
-                    n++;
+                    IndiceSubstiucion++;
                     completado = true;
                 }
                 if (masPequeño=="*"|| masPequeño == "+" || masPequeño == "?" || masPequeño == "." || masPequeño == "|")
@@ -127,14 +138,16 @@ namespace Proyecto_Lenguajes
                     var nievo = new NodoExpresion()
                     {
                         Nombre = masPequeño,
-                        id = n,
-                        First = $"{n},",
-                        Last = $"{n},",
+                        id = IndiceSubstiucion,
+                        PrimeraPos = $"{IndiceSubstiucion},",
+                        UltimaPos = $"{IndiceSubstiucion},",
                         Nullable = false,
 
                     };
+                    NodosHoja.Add(nievo);
+
                     SubArboles.Add(nievo);
-                    n++;
+                    IndiceSubstiucion++;
                     completado = true;
                 }
                 //*
@@ -235,14 +248,16 @@ namespace Proyecto_Lenguajes
                 var nievo = new NodoExpresion()
                 {
                     Nombre = ExpresionActual,
-                    id = n,
-                    First = $"{n},",
-                    Last = $"{n},",
+                    id = IndiceSubstiucion,
+                    PrimeraPos = $"{IndiceSubstiucion},",
+                    UltimaPos = $"{IndiceSubstiucion},",
                     Nullable = false,
 
                 };
+                NodosHoja.Add(nievo);
+
                 SubArboles.Add(nievo);
-                n++;
+                IndiceSubstiucion++;
                 completado = true;
             }
             if (ExpresionActual == "*" || ExpresionActual == "+" || ExpresionActual == "?" || ExpresionActual == "." || ExpresionActual == "|")
@@ -251,14 +266,16 @@ namespace Proyecto_Lenguajes
                 var nievo = new NodoExpresion()
                 {
                     Nombre = ExpresionActual,
-                    id = n,
-                    First = $"{n},",
-                    Last = $"{n},",
+                    id = IndiceSubstiucion,
+                    PrimeraPos = $"{IndiceSubstiucion},",
+                    UltimaPos = $"{IndiceSubstiucion},",
                     Nullable = false,
 
                 };
+                NodosHoja.Add(nievo);
+
                 SubArboles.Add(nievo);
-                n++;
+                IndiceSubstiucion++;
                 completado = true;
             }
             //*
@@ -361,10 +378,10 @@ namespace Proyecto_Lenguajes
                 var nuevo = Substituicion[expresion];
                 devolver.Nombre = "*";
                 devolver.C1 = nuevo;
-                devolver.First = devolver.C1.First;
-                devolver.Last = devolver.C1.Last;
+                devolver.PrimeraPos = devolver.C1.PrimeraPos;
+                devolver.UltimaPos = devolver.C1.UltimaPos;
                 devolver.Nullable = false;
-                n++;
+                IndiceSubstiucion++;
                 //existe, asignar
                 //
             }
@@ -373,33 +390,37 @@ namespace Proyecto_Lenguajes
             {
                 var hoja = new NodoExpresion()
                 {
-                    id = n,
+                    id = IndiceSubstiucion,
                     Nombre = diccionaro[expresion],
                     Nullable = false,
                     Padre = devolver
                 };
-                hoja.First += $"{n},";
-                hoja.Last += $"{n},";
+                hoja.PrimeraPos += $"{IndiceSubstiucion},";
+                hoja.UltimaPos += $"{IndiceSubstiucion},";
 
 
                 devolver.Nombre = "+";
                 devolver.C1 = hoja;
-                devolver.First = devolver.C1.First;
-                devolver.Last = devolver.C1.Last;
+                devolver.PrimeraPos = devolver.C1.PrimeraPos;
+                devolver.UltimaPos = devolver.C1.UltimaPos;
                 devolver.Nullable = false;
-                n++;
+                NodosHoja.Add(hoja);
+
+
+                
+                IndiceSubstiucion++;
             }
-            if (Substituicion.ContainsKey($"[{n}]"))
+            if (Substituicion.ContainsKey($"[{IndiceSubstiucion}]"))
             {
-                n++;
-                Substituicion.Add($"[{n}]", devolver);
+                IndiceSubstiucion++;
+                Substituicion.Add($"[{IndiceSubstiucion}]", devolver);
             }
             else
             {
 
-                Substituicion.Add($"[{n}]", devolver);
+                Substituicion.Add($"[{IndiceSubstiucion}]", devolver);
             }
-            return $"[{n}]";
+            return $"[{IndiceSubstiucion}]";
         }
         string Asterisco(string expresion, Dictionary<string, string> diccionaro)
         {
@@ -413,10 +434,10 @@ namespace Proyecto_Lenguajes
                 var nuevo = Substituicion[expresion];
                 devolver.Nombre = "*";
                 devolver.C1 = nuevo;
-                devolver.First = devolver.C1.First;
-                devolver.Last = devolver.C1.Last;
+                devolver.PrimeraPos = devolver.C1.PrimeraPos;
+                devolver.UltimaPos = devolver.C1.UltimaPos;
                 devolver.Nullable = true;
-                n++;
+                IndiceSubstiucion++;
                 //
             }
             else
@@ -424,35 +445,37 @@ namespace Proyecto_Lenguajes
             {
                 var hoja= new NodoExpresion()
                 {
-                    id = n,
+                    id = IndiceSubstiucion,
                     Nombre = diccionaro[expresion],
                     Nullable = false,
                     Padre = devolver
                 };
-                hoja.First += $"{n},";
-                hoja.Last += $"{n},";
+                hoja.PrimeraPos += $"{IndiceSubstiucion},";
+                hoja.UltimaPos += $"{IndiceSubstiucion},";
 
 
                 devolver.Nombre = "*";
                 devolver.C1 = hoja;
-                devolver.First = devolver.C1.First;
-                devolver.Last= devolver.C1.Last;
+                devolver.PrimeraPos = devolver.C1.PrimeraPos;
+                devolver.UltimaPos= devolver.C1.UltimaPos;
                 devolver.Nullable = true;
-                n++;
+                NodosHoja.Add(hoja);
+
+                IndiceSubstiucion++;
             }
 
-            if (Substituicion.ContainsKey($"[{n}]"))
+            if (Substituicion.ContainsKey($"[{IndiceSubstiucion}]"))
             {
-                n++;
-            Substituicion.Add($"[{n}]",devolver);
+                IndiceSubstiucion++;
+            Substituicion.Add($"[{IndiceSubstiucion}]",devolver);
             }
             else
             {
 
-            Substituicion.Add($"[{n}]",devolver);
+            Substituicion.Add($"[{IndiceSubstiucion}]",devolver);
             }
 
-            return $"[{n}]";
+            return $"[{IndiceSubstiucion}]";
         }
         string Concatenacion(string expresion, Dictionary<string, string> descompresion)
         {
@@ -471,26 +494,30 @@ namespace Proyecto_Lenguajes
                     nuevo.C1 = new NodoExpresion()
                     {
                         Nombre = descompresion[izq],
-                        First = $"{n},",
-                        Last = $"{n},",
+                        PrimeraPos = $"{IndiceSubstiucion},",
+                        UltimaPos = $"{IndiceSubstiucion},",
                         Nullable = false,
                         Padre = nuevo,
-                        id = n,
+                        id = IndiceSubstiucion,
                     };
+
+                    NodosHoja.Add(nuevo.C1);
                 }
                 else
                 {
                     nuevo.C1 = new NodoExpresion()
                     {
                         Nombre = izq,
-                        First = $"{n},",
-                        Last = $"{n},",
+                        PrimeraPos = $"{IndiceSubstiucion},",
+                        UltimaPos = $"{IndiceSubstiucion},",
                         Nullable = false,
                         Padre = nuevo,
-                        id = n,
+                        id = IndiceSubstiucion,
                     };
+                    NodosHoja.Add(nuevo.C1);
+
                 }
-                n++;
+                IndiceSubstiucion++;
             }
             if (Substituicion.ContainsKey(der))
             {
@@ -503,26 +530,30 @@ namespace Proyecto_Lenguajes
                     nuevo.C2 = new NodoExpresion()
                     {
                         Nombre = descompresion[der],
-                        First = $"{n},",
-                        Last = $"{n},",
+                        PrimeraPos = $"{IndiceSubstiucion},",
+                        UltimaPos = $"{IndiceSubstiucion},",
                         Nullable = false,
                         Padre = nuevo,
-                        id = n,
+                        id = IndiceSubstiucion,
                     };
+                    NodosHoja.Add(nuevo.C2);
+
                 }
                 else
                 {
                     nuevo.C2 = new NodoExpresion()
                     {
                         Nombre = der,
-                        First = $"{n},",
-                        Last = $"{n},",
+                        PrimeraPos = $"{IndiceSubstiucion},",
+                        UltimaPos = $"{IndiceSubstiucion},",
                         Nullable = false,
                         Padre = nuevo,
-                        id = n,
+                        id = IndiceSubstiucion,
                     };
+                    NodosHoja.Add(nuevo.C2);
+
                 }
-                n++;
+                IndiceSubstiucion++;
             }
             nuevo.Nombre = ".";
             //validar nullabilidad de el nuevo
@@ -539,38 +570,38 @@ namespace Proyecto_Lenguajes
             //first
             if (nuevo.C1.Nullable == true)
             {//true
-                nuevo.First = $"{nuevo.C1.First}{nuevo.C2.First}";
+                nuevo.PrimeraPos = $"{nuevo.C1.PrimeraPos}{nuevo.C2.PrimeraPos}";
             }
             else
             {//false
-                nuevo.First = nuevo.C1.First;
+                nuevo.PrimeraPos = nuevo.C1.PrimeraPos;
 
             }
 
             //last
             if (nuevo.C2.Nullable == true)
             {//true 
-                nuevo.Last = $"{nuevo.C1.Last}{nuevo.C2.Last}";
+                nuevo.UltimaPos = $"{nuevo.C1.UltimaPos}{nuevo.C2.UltimaPos}";
 
             }
             else
             {//false
-                nuevo.Last = nuevo.C2.Last;
+                nuevo.UltimaPos = nuevo.C2.UltimaPos;
             }
 
 
-            if (Substituicion.ContainsKey($"[{n}]"))
+            if (Substituicion.ContainsKey($"[{IndiceSubstiucion}]"))
             {
-                n++;
-                Substituicion.Add($"[{n}]", nuevo);
+                IndiceSubstiucion++;
+                Substituicion.Add($"[{IndiceSubstiucion}]", nuevo);
             }
             else
             {
-                Substituicion.Add($"[{n}]", nuevo);
+                Substituicion.Add($"[{IndiceSubstiucion}]", nuevo);
 
             }
 
-            return $"[{n}]";
+            return $"[{IndiceSubstiucion}]";
         }
         string Or(string expresion, Dictionary<string, string> descompresion)
         {
@@ -589,26 +620,30 @@ namespace Proyecto_Lenguajes
                     nuevo.C1 = new NodoExpresion()
                     {
                         Nombre = descompresion[izq],
-                        First = $"{n},",
-                        Last = $"{n},",
+                        PrimeraPos = $"{IndiceSubstiucion},",
+                        UltimaPos = $"{IndiceSubstiucion},",
                         Nullable = false,
                         Padre = nuevo,
-                        id = n,
+                        id = IndiceSubstiucion,
                     };
+                    NodosHoja.Add(nuevo.C1);
+
                 }
                 else
                 {
                     nuevo.C1 = new NodoExpresion()
                     {
                         Nombre = izq,
-                        First = $"{n},",
-                        Last = $"{n},",
+                        PrimeraPos = $"{IndiceSubstiucion},",
+                        UltimaPos = $"{IndiceSubstiucion},",
                         Nullable = false,
                         Padre = nuevo,
-                        id = n,
+                        id = IndiceSubstiucion,
                     };
+                    NodosHoja.Add(nuevo.C1);
+
                 }
-                n++;
+                IndiceSubstiucion++;
             }
             if (Substituicion.ContainsKey(der))
             {
@@ -621,26 +656,30 @@ namespace Proyecto_Lenguajes
                     nuevo.C2 = new NodoExpresion()
                     {
                         Nombre = descompresion[der],
-                        First = $"{n},",
-                        Last = $"{n},",
+                        PrimeraPos = $"{IndiceSubstiucion},",
+                        UltimaPos = $"{IndiceSubstiucion},",
                         Nullable = false,
                         Padre = nuevo,
-                        id = n,
+                        id = IndiceSubstiucion,
                     };
+                    NodosHoja.Add(nuevo.C2);
+
                 }
                 else
                 {
                     nuevo.C2 = new NodoExpresion()
                     {
                         Nombre = der,
-                        First = $"{n},",
-                        Last = $"{n},",
+                        PrimeraPos = $"{IndiceSubstiucion},",
+                        UltimaPos = $"{IndiceSubstiucion},",
                         Nullable = false,
                         Padre = nuevo,
-                        id = n,
+                        id = IndiceSubstiucion,
                     };
+                    NodosHoja.Add(nuevo.C2);
+
                 }
-                n++;
+                IndiceSubstiucion++;
             }
             nuevo.Nombre = "|";
             //validar nullabilidad de el nuevo
@@ -656,25 +695,25 @@ namespace Proyecto_Lenguajes
 
 
             //FIRSTs
-            nuevo.First = $"{nuevo.C1.First}{nuevo.C2.First}";
+            nuevo.PrimeraPos = $"{nuevo.C1.PrimeraPos}{nuevo.C2.PrimeraPos}";
             
 
             //last
-            nuevo.Last = $"{nuevo.C1.Last}{nuevo.C2.Last}";
+            nuevo.UltimaPos = $"{nuevo.C1.UltimaPos}{nuevo.C2.UltimaPos}";
 
             
-            if (Substituicion.ContainsKey($"[{n}]"))
+            if (Substituicion.ContainsKey($"[{IndiceSubstiucion}]"))
             {
-                n++;
-            Substituicion.Add($"[{n}]", nuevo);
+                IndiceSubstiucion++;
+            Substituicion.Add($"[{IndiceSubstiucion}]", nuevo);
             }
             else
             {
-            Substituicion.Add($"[{n}]", nuevo);
+            Substituicion.Add($"[{IndiceSubstiucion}]", nuevo);
 
             }
 
-            return $"[{n}]";
+            return $"[{IndiceSubstiucion}]";
 
         }
         string Interrogacion(string expresion, Dictionary<string, string> diccionaro)
@@ -689,10 +728,10 @@ namespace Proyecto_Lenguajes
                 var nuevo = Substituicion[expresion];
                 devolver.Nombre = "*";
                 devolver.C1 = nuevo;
-                devolver.First = devolver.C1.First;
-                devolver.Last = devolver.C1.Last;
+                devolver.PrimeraPos = devolver.C1.PrimeraPos;
+                devolver.UltimaPos = devolver.C1.UltimaPos;
                 devolver.Nullable = false;
-                n++;
+                IndiceSubstiucion++;
                 //existe, asignar
                 //
             }
@@ -701,33 +740,35 @@ namespace Proyecto_Lenguajes
             {
                 var hoja = new NodoExpresion()
                 {
-                    id = n,
+                    id = IndiceSubstiucion,
                     Nombre = diccionaro[expresion],
                     Nullable = false,
                     Padre = devolver
                 };
-                hoja.First += $"{n},";
-                hoja.Last += $"{n},";
+                hoja.PrimeraPos += $"{IndiceSubstiucion},";
+                hoja.UltimaPos += $"{IndiceSubstiucion},";
 
 
                 devolver.Nombre = "?";
                 devolver.C1 = hoja;
-                devolver.First = devolver.C1.First;
-                devolver.Last = devolver.C1.Last;
+                devolver.PrimeraPos = devolver.C1.PrimeraPos;
+                devolver.UltimaPos = devolver.C1.UltimaPos;
                 devolver.Nullable = true;
-                n++;
+                NodosHoja.Add(hoja);
+
+                IndiceSubstiucion++;
             }
-            if (Substituicion.ContainsKey($"[{n}]"))
+            if (Substituicion.ContainsKey($"[{IndiceSubstiucion}]"))
             {
-                n++;
-                Substituicion.Add($"[{n}]", devolver);
+                IndiceSubstiucion++;
+                Substituicion.Add($"[{IndiceSubstiucion}]", devolver);
             }
             else
             {
 
-                Substituicion.Add($"[{n}]", devolver);
+                Substituicion.Add($"[{IndiceSubstiucion}]", devolver);
             }
-            return $"[{n}]";
+            return $"[{IndiceSubstiucion}]";
         }
         string A_Construir(string completo, int indice,string operacion)
         {
@@ -841,9 +882,9 @@ namespace Proyecto_Lenguajes
             }
             nuevo.Nombre = "|";
             //FIRSTs
-            nuevo.First = $"{nuevo.C1.First}{nuevo.C2.First}";
+            nuevo.PrimeraPos = $"{nuevo.C1.PrimeraPos}{nuevo.C2.PrimeraPos}";
             //last
-            nuevo.Last = $"{nuevo.C1.Last}{nuevo.C2.Last}";
+            nuevo.UltimaPos = $"{nuevo.C1.UltimaPos}{nuevo.C2.UltimaPos}";
             return nuevo;
         }
         NodoExpresion ObtenerRaiz(NodoExpresion nC1, NodoExpresion Final)
@@ -863,32 +904,86 @@ namespace Proyecto_Lenguajes
             {
                 nuevo.Nullable = false;
             }
-            nuevo.Nombre = "|";
 
             //first
             if (nuevo.C1.Nullable == true)
             {//true
-                nuevo.First = $"{nuevo.C1.First}{nuevo.C2.First}";
+                nuevo.PrimeraPos = $"{nuevo.C1.PrimeraPos}{nuevo.C2.PrimeraPos}";
             }
             else
             {//false
-                nuevo.First = nuevo.C1.First;
+                nuevo.PrimeraPos = nuevo.C1.PrimeraPos;
 
             }
 
             //last
             if (nuevo.C2.Nullable == true)
             {//true 
-                nuevo.Last = $"{nuevo.C1.Last}{nuevo.C2.Last}";
+                nuevo.UltimaPos = $"{nuevo.C1.UltimaPos}{nuevo.C2.UltimaPos}";
 
             }
             else
             {//false
-                nuevo.Last = nuevo.C2.Last;
+                nuevo.UltimaPos = nuevo.C2.UltimaPos;
             }
             return nuevo;
         }
         #endregion
-        
+       void CalcularFollows()
+       {
+            foreach (var item in NodosHoja)
+            {
+                Follows.Add(item.id.ToString(),"");
+            }
+            Inorder(Raiz);
+       }
+        void Inorder(NodoExpresion Root)
+        {
+            if (Root != null)
+            {
+               
+                Inorder(Root.C1);
+                if (Root.Nombre == ".")
+                {
+
+                    var Firsts = Root.C1.UltimaPos.Split(',');
+                    var Lasts = Root.C2.PrimeraPos.Split(',');
+                    foreach (var primera in Firsts)
+                    {
+                        if (primera!="")
+                        {
+
+                            foreach (var ultima in Lasts)
+                            {
+                                if (ultima != "")
+                                {
+                                    Follows[primera] += $"{ultima},";
+                                }
+                            }
+                        }
+                    }
+                }
+                else if (Root.Nombre == "*")
+                {
+                    var Firsts = Root.UltimaPos.Split(',');
+                    var Lasts = Root.PrimeraPos.Split(',');
+                    foreach (var primera in Firsts)
+                    {
+                        if (primera != "")
+                        {
+
+                            foreach (var ultima in Lasts)
+                            {
+                                if (ultima != "")
+                                {
+                                    Follows[primera] += $"{ultima},";
+                                }
+                            }
+                        }
+                    }
+                }
+                Inorder(Root.C2);
+            }
+        }
     }
 }

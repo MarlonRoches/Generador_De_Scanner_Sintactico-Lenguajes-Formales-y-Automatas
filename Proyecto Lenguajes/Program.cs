@@ -81,7 +81,7 @@ namespace Proyecto_Lenguajes
                 linea = reader.ReadLine();
             }
             MegaExpresion += "Ø";//Ø=157
-            var arbol =Arbol_De_Expresiones.Instance.GenerarArbol(MegaExpresion,TOKENS,SETS.Keys.ToArray());
+            var arbol =Arbol_De_Expresiones.Instance.Generar_Arbol(MegaExpresion,SETS.Keys.ToArray());
             //Arbol_De_Expresiones.Instance.Inorder(Arbol_De_Expresiones.Instance.Diccionario_Nodos);
             Inorder(arbol);
             // PRIMERA FASE
@@ -156,14 +156,31 @@ namespace Proyecto_Lenguajes
 
             #endregion
 
-           // Console.WriteLine(MegaExpresion);
+            Console.WriteLine("------HOJAS-------");
+            var n = 1;
+            foreach (var item in Arbol_De_Expresiones.Instance.NodosHoja)
+            {
+                Console.WriteLine($"Hoja No.{n}: {item.Nombre}");
+                n++;
+            }
+
             Console.ReadLine();
+
             void Inorder(NodoExpresion Root)
             {
                 if (Root != null)
                 {
                     Inorder(Root.C1);
+                    if (Root.Nombre=="|"|| Root.Nombre == "." || Root.Nombre == "*" || Root.Nombre == "?" || Root.Nombre == "+")
+                    {
+
+                    Console.Write(Root.Nombre + " ");
+                    }
+                    else
+                    {
                     Console.Write($"'{Root.Nombre}'" + " ");
+
+                    }
                     Inorder(Root.C2);
                 }
             }
