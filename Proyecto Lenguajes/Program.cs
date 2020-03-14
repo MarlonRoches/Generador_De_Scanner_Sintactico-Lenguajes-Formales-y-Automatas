@@ -81,9 +81,48 @@ namespace Proyecto_Lenguajes
                 linea = reader.ReadLine();
             }
             MegaExpresion += "Ø";//Ø=157
-            var arbol =Arbol_De_Expresiones.Instance.Generar_Arbol(MegaExpresion,SETS.Keys.ToArray());
+            var Raiz =Arbol_De_Expresiones.Instance.Generar_Arbol(MegaExpresion,SETS.Keys.ToArray());
             //Arbol_De_Expresiones.Instance.Inorder(Arbol_De_Expresiones.Instance.Diccionario_Nodos);
-            Inorder(arbol);
+            ///mostrar SETS
+            foreach (var set in SETS)
+            {
+                Console.WriteLine($"El SET '{set.Key}' contiene los siguiente scaracteres:");
+                foreach (var caract in set.Value)
+                {
+                    Console.Write($"'{caract}', ");
+                }
+                Console.WriteLine();
+                Console.WriteLine();
+            }
+            ///mostrar validacion
+            ///errores
+            ///enumeracion de tokens
+            Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("TOKENS");
+            foreach (var item in TOKENS)
+            {
+                Console.WriteLine($"{item.Key}: { item.Value}");
+            }
+            ///escritura de tokens
+            
+            ///firts
+                Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("FIRSTS");
+            EscribirFirsts(Raiz);
+            
+            ///lasts
+                Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.DarkRed;
+                Console.WriteLine("LASTS");
+            EscribirLst(Raiz);
+            
+            ///follows
+                Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine("FOLLOWS");
+            EscribirFollows();
+            
             // PRIMERA FASE
             #region Comentado
             //while (linea != null)
@@ -156,6 +195,7 @@ namespace Proyecto_Lenguajes
 
             #endregion
 
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("------HOJAS-------");
             var n = 1;
             foreach (var item in Arbol_De_Expresiones.Instance.NodosHoja)
@@ -182,6 +222,36 @@ namespace Proyecto_Lenguajes
 
                     }
                     Inorder(Root.C2);
+                }
+            }
+
+            void EscribirFirsts(NodoExpresion Root)
+            {
+                if (Root != null)
+                {
+                    EscribirFirsts(Root.C1);
+                    
+                        Console.WriteLine($"Hoja:{Root.Nombre}: First =>{ Root.First}");
+
+                    EscribirFirsts(Root.C2);
+                }
+            }
+            void EscribirLst(NodoExpresion Root)
+            {
+                if (Root != null)
+                {
+                    EscribirLst(Root.C1);
+                    Console.WriteLine($"Hoja:{Root.Nombre}: First =>    { Root.Last}");
+
+                    EscribirLst(Root.C2);
+                }
+            }
+
+            void EscribirFollows()
+            {
+                foreach (var item in Arbol_De_Expresiones.Instance.Follows)
+                {
+                    Console.WriteLine($"Nodo No. {item.Key}: Follow =>  { item.Value}");
                 }
             }
         }

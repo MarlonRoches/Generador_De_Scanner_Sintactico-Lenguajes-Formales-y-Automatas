@@ -57,7 +57,7 @@ namespace Proyecto_Lenguajes
             Raiz = ObtenerRaiz(SubArboles[0],SubArboles[1]);
             CalcularFollows();
             Alfabeto = ObtenerALfabeto();
-            ObtenerAFD();
+           ObtenerAFD();
             return Raiz;
         }
         void LecturaDinamica(string ExpresionActual,string[] SETS)
@@ -125,8 +125,8 @@ namespace Proyecto_Lenguajes
                     {
                         Nombre = masPequeño,
                         id=IndiceSubstiucion,
-                        PrimeraPos=$"{IndiceSubstiucion},",
-                        UltimaPos=$"{IndiceSubstiucion},",
+                        First=$"{IndiceSubstiucion},",
+                        Last=$"{IndiceSubstiucion},",
                         Nullable=false,
                         
                     };
@@ -143,8 +143,8 @@ namespace Proyecto_Lenguajes
                     {
                         Nombre = masPequeño,
                         id = IndiceSubstiucion,
-                        PrimeraPos = $"{IndiceSubstiucion},",
-                        UltimaPos = $"{IndiceSubstiucion},",
+                        First = $"{IndiceSubstiucion},",
+                        Last = $"{IndiceSubstiucion},",
                         Nullable = false,
 
                     };
@@ -253,8 +253,8 @@ namespace Proyecto_Lenguajes
                 {
                     Nombre = ExpresionActual,
                     id = IndiceSubstiucion,
-                    PrimeraPos = $"{IndiceSubstiucion},",
-                    UltimaPos = $"{IndiceSubstiucion},",
+                    First = $"{IndiceSubstiucion},",
+                    Last = $"{IndiceSubstiucion},",
                     Nullable = false,
 
                 };
@@ -271,8 +271,8 @@ namespace Proyecto_Lenguajes
                 {
                     Nombre = ExpresionActual,
                     id = IndiceSubstiucion,
-                    PrimeraPos = $"{IndiceSubstiucion},",
-                    UltimaPos = $"{IndiceSubstiucion},",
+                    First = $"{IndiceSubstiucion},",
+                    Last = $"{IndiceSubstiucion},",
                     Nullable = false,
 
                 };
@@ -382,8 +382,8 @@ namespace Proyecto_Lenguajes
                 var nuevo = Substituicion[expresion];
                 devolver.Nombre = "*";
                 devolver.C1 = nuevo;
-                devolver.PrimeraPos = devolver.C1.PrimeraPos;
-                devolver.UltimaPos = devolver.C1.UltimaPos;
+                devolver.First = devolver.C1.First;
+                devolver.Last = devolver.C1.Last;
                 devolver.Nullable = false;
                 IndiceSubstiucion++;
                 //existe, asignar
@@ -399,14 +399,14 @@ namespace Proyecto_Lenguajes
                     Nullable = false,
                     Padre = devolver
                 };
-                hoja.PrimeraPos += $"{IndiceSubstiucion},";
-                hoja.UltimaPos += $"{IndiceSubstiucion},";
+                hoja.First += $"{IndiceSubstiucion},";
+                hoja.Last += $"{IndiceSubstiucion},";
 
 
                 devolver.Nombre = "+";
                 devolver.C1 = hoja;
-                devolver.PrimeraPos = devolver.C1.PrimeraPos;
-                devolver.UltimaPos = devolver.C1.UltimaPos;
+                devolver.First = devolver.C1.First;
+                devolver.Last = devolver.C1.Last;
                 devolver.Nullable = false;
                 NodosHoja.Add(hoja);
 
@@ -438,8 +438,8 @@ namespace Proyecto_Lenguajes
                 var nuevo = Substituicion[expresion];
                 devolver.Nombre = "*";
                 devolver.C1 = nuevo;
-                devolver.PrimeraPos = devolver.C1.PrimeraPos;
-                devolver.UltimaPos = devolver.C1.UltimaPos;
+                devolver.First = devolver.C1.First;
+                devolver.Last = devolver.C1.Last;
                 devolver.Nullable = true;
                 IndiceSubstiucion++;
                 //
@@ -454,14 +454,14 @@ namespace Proyecto_Lenguajes
                     Nullable = false,
                     Padre = devolver
                 };
-                hoja.PrimeraPos += $"{IndiceSubstiucion},";
-                hoja.UltimaPos += $"{IndiceSubstiucion},";
+                hoja.First += $"{IndiceSubstiucion},";
+                hoja.Last += $"{IndiceSubstiucion},";
 
 
                 devolver.Nombre = "*";
                 devolver.C1 = hoja;
-                devolver.PrimeraPos = devolver.C1.PrimeraPos;
-                devolver.UltimaPos= devolver.C1.UltimaPos;
+                devolver.First = devolver.C1.First;
+                devolver.Last= devolver.C1.Last;
                 devolver.Nullable = true;
                 NodosHoja.Add(hoja);
 
@@ -498,8 +498,8 @@ namespace Proyecto_Lenguajes
                     nuevo.C1 = new NodoExpresion()
                     {
                         Nombre = descompresion[izq],
-                        PrimeraPos = $"{IndiceSubstiucion},",
-                        UltimaPos = $"{IndiceSubstiucion},",
+                        First = $"{IndiceSubstiucion},",
+                        Last = $"{IndiceSubstiucion},",
                         Nullable = false,
                         Padre = nuevo,
                         id = IndiceSubstiucion,
@@ -512,8 +512,8 @@ namespace Proyecto_Lenguajes
                     nuevo.C1 = new NodoExpresion()
                     {
                         Nombre = izq,
-                        PrimeraPos = $"{IndiceSubstiucion},",
-                        UltimaPos = $"{IndiceSubstiucion},",
+                        First = $"{IndiceSubstiucion},",
+                        Last = $"{IndiceSubstiucion},",
                         Nullable = false,
                         Padre = nuevo,
                         id = IndiceSubstiucion,
@@ -534,8 +534,8 @@ namespace Proyecto_Lenguajes
                     nuevo.C2 = new NodoExpresion()
                     {
                         Nombre = descompresion[der],
-                        PrimeraPos = $"{IndiceSubstiucion},",
-                        UltimaPos = $"{IndiceSubstiucion},",
+                        First = $"{IndiceSubstiucion},",
+                        Last = $"{IndiceSubstiucion},",
                         Nullable = false,
                         Padre = nuevo,
                         id = IndiceSubstiucion,
@@ -548,8 +548,8 @@ namespace Proyecto_Lenguajes
                     nuevo.C2 = new NodoExpresion()
                     {
                         Nombre = der,
-                        PrimeraPos = $"{IndiceSubstiucion},",
-                        UltimaPos = $"{IndiceSubstiucion},",
+                        First = $"{IndiceSubstiucion},",
+                        Last = $"{IndiceSubstiucion},",
                         Nullable = false,
                         Padre = nuevo,
                         id = IndiceSubstiucion,
@@ -574,23 +574,23 @@ namespace Proyecto_Lenguajes
             //first
             if (nuevo.C1.Nullable == true)
             {//true
-                nuevo.PrimeraPos = $"{nuevo.C1.PrimeraPos}{nuevo.C2.PrimeraPos}";
+                nuevo.First = $"{nuevo.C1.First}{nuevo.C2.First}";
             }
             else
             {//false
-                nuevo.PrimeraPos = nuevo.C1.PrimeraPos;
+                nuevo.First = nuevo.C1.First;
 
             }
 
             //last
             if (nuevo.C2.Nullable == true)
             {//true 
-                nuevo.UltimaPos = $"{nuevo.C1.UltimaPos}{nuevo.C2.UltimaPos}";
+                nuevo.Last = $"{nuevo.C1.Last}{nuevo.C2.Last}";
 
             }
             else
             {//false
-                nuevo.UltimaPos = nuevo.C2.UltimaPos;
+                nuevo.Last = nuevo.C2.Last;
             }
 
 
@@ -624,8 +624,8 @@ namespace Proyecto_Lenguajes
                     nuevo.C1 = new NodoExpresion()
                     {
                         Nombre = descompresion[izq],
-                        PrimeraPos = $"{IndiceSubstiucion},",
-                        UltimaPos = $"{IndiceSubstiucion},",
+                        First = $"{IndiceSubstiucion},",
+                        Last = $"{IndiceSubstiucion},",
                         Nullable = false,
                         Padre = nuevo,
                         id = IndiceSubstiucion,
@@ -638,8 +638,8 @@ namespace Proyecto_Lenguajes
                     nuevo.C1 = new NodoExpresion()
                     {
                         Nombre = izq,
-                        PrimeraPos = $"{IndiceSubstiucion},",
-                        UltimaPos = $"{IndiceSubstiucion},",
+                        First = $"{IndiceSubstiucion},",
+                        Last = $"{IndiceSubstiucion},",
                         Nullable = false,
                         Padre = nuevo,
                         id = IndiceSubstiucion,
@@ -660,8 +660,8 @@ namespace Proyecto_Lenguajes
                     nuevo.C2 = new NodoExpresion()
                     {
                         Nombre = descompresion[der],
-                        PrimeraPos = $"{IndiceSubstiucion},",
-                        UltimaPos = $"{IndiceSubstiucion},",
+                        First = $"{IndiceSubstiucion},",
+                        Last = $"{IndiceSubstiucion},",
                         Nullable = false,
                         Padre = nuevo,
                         id = IndiceSubstiucion,
@@ -674,8 +674,8 @@ namespace Proyecto_Lenguajes
                     nuevo.C2 = new NodoExpresion()
                     {
                         Nombre = der,
-                        PrimeraPos = $"{IndiceSubstiucion},",
-                        UltimaPos = $"{IndiceSubstiucion},",
+                        First = $"{IndiceSubstiucion},",
+                        Last = $"{IndiceSubstiucion},",
                         Nullable = false,
                         Padre = nuevo,
                         id = IndiceSubstiucion,
@@ -699,11 +699,11 @@ namespace Proyecto_Lenguajes
 
 
             //FIRSTs
-            nuevo.PrimeraPos = $"{nuevo.C1.PrimeraPos}{nuevo.C2.PrimeraPos}";
+            nuevo.First = $"{nuevo.C1.First}{nuevo.C2.First}";
             
 
             //last
-            nuevo.UltimaPos = $"{nuevo.C1.UltimaPos}{nuevo.C2.UltimaPos}";
+            nuevo.Last = $"{nuevo.C1.Last}{nuevo.C2.Last}";
 
             
             if (Substituicion.ContainsKey($"[{IndiceSubstiucion}]"))
@@ -732,8 +732,8 @@ namespace Proyecto_Lenguajes
                 var nuevo = Substituicion[expresion];
                 devolver.Nombre = "*";
                 devolver.C1 = nuevo;
-                devolver.PrimeraPos = devolver.C1.PrimeraPos;
-                devolver.UltimaPos = devolver.C1.UltimaPos;
+                devolver.First = devolver.C1.First;
+                devolver.Last = devolver.C1.Last;
                 devolver.Nullable = false;
                 IndiceSubstiucion++;
                 //existe, asignar
@@ -749,14 +749,14 @@ namespace Proyecto_Lenguajes
                     Nullable = false,
                     Padre = devolver
                 };
-                hoja.PrimeraPos += $"{IndiceSubstiucion},";
-                hoja.UltimaPos += $"{IndiceSubstiucion},";
+                hoja.First += $"{IndiceSubstiucion},";
+                hoja.Last += $"{IndiceSubstiucion},";
 
 
                 devolver.Nombre = "?";
                 devolver.C1 = hoja;
-                devolver.PrimeraPos = devolver.C1.PrimeraPos;
-                devolver.UltimaPos = devolver.C1.UltimaPos;
+                devolver.First = devolver.C1.First;
+                devolver.Last = devolver.C1.Last;
                 devolver.Nullable = true;
                 NodosHoja.Add(hoja);
 
@@ -886,9 +886,9 @@ namespace Proyecto_Lenguajes
             }
             nuevo.Nombre = "|";
             //FIRSTs
-            nuevo.PrimeraPos = $"{nuevo.C1.PrimeraPos}{nuevo.C2.PrimeraPos}";
+            nuevo.First = $"{nuevo.C1.First}{nuevo.C2.First}";
             //last
-            nuevo.UltimaPos = $"{nuevo.C1.UltimaPos}{nuevo.C2.UltimaPos}";
+            nuevo.Last = $"{nuevo.C1.Last}{nuevo.C2.Last}";
             return nuevo;
         }
         NodoExpresion ObtenerRaiz(NodoExpresion nC1, NodoExpresion Final)
@@ -912,23 +912,23 @@ namespace Proyecto_Lenguajes
             //first
             if (nuevo.C1.Nullable == true)
             {//true
-                nuevo.PrimeraPos = $"{nuevo.C1.PrimeraPos}{nuevo.C2.PrimeraPos}";
+                nuevo.First = $"{nuevo.C1.First}{nuevo.C2.First}";
             }
             else
             {//false
-                nuevo.PrimeraPos = nuevo.C1.PrimeraPos;
+                nuevo.First = nuevo.C1.First;
 
             }
 
             //last
             if (nuevo.C2.Nullable == true)
             {//true 
-                nuevo.UltimaPos = $"{nuevo.C1.UltimaPos}{nuevo.C2.UltimaPos}";
+                nuevo.Last = $"{nuevo.C1.Last}{nuevo.C2.Last}";
 
             }
             else
             {//false
-                nuevo.UltimaPos = nuevo.C2.UltimaPos;
+                nuevo.Last = nuevo.C2.Last;
             }
             return nuevo;
         }
@@ -950,8 +950,8 @@ namespace Proyecto_Lenguajes
                 if (Root.Nombre == ".")
                 {
 
-                    var Firsts = Root.C1.UltimaPos.Split(',');
-                    var Lasts = Root.C2.PrimeraPos.Split(',');
+                    var Firsts = Root.C1.Last.Split(',');
+                    var Lasts = Root.C2.First.Split(',');
                     foreach (var primera in Firsts)
                     {
                         if (primera!="")
@@ -969,8 +969,8 @@ namespace Proyecto_Lenguajes
                 }
                 else if (Root.Nombre == "*")
                 {
-                    var Firsts = Root.UltimaPos.Split(',');
-                    var Lasts = Root.PrimeraPos.Split(',');
+                    var Firsts = Root.Last.Split(',');
+                    var Lasts = Root.First.Split(',');
                     foreach (var primera in Firsts)
                     {
                         if (primera != "")
@@ -1010,7 +1010,7 @@ namespace Proyecto_Lenguajes
         void ObtenerAFD()
         { var conta = 1;
             var q = 1;
-            var inicio = Raiz.PrimeraPos.Split(',');
+            var inicio = Raiz.First.Split(',');
             var listaaux = new List<string>();
             foreach (var item in inicio)
             {
@@ -1067,7 +1067,9 @@ namespace Proyecto_Lenguajes
                     listaaux.Add(item);
                 }
             }
-            return null;
+            listaaux = listaaux.OrderBy(q => q).ToList();
+
+            return listaaux;
         }
 
     }
