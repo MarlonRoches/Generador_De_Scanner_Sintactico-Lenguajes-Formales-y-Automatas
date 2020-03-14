@@ -20,7 +20,7 @@ namespace Proyecto_Lenguajes
         }
 
         public List<NodoExpresion> SubArboles = new List<NodoExpresion>();
-        public Dictionary<int, NodoExpresion> Diccionario_Nodos = new Dictionary<int, NodoExpresion>();
+        public Dictionary<string, NodoExpresion> Diccionario_Nodos = new Dictionary<string, NodoExpresion>();
         public Dictionary<string, NodoExpresion> Substituicion = new Dictionary<string, NodoExpresion>();
         static int n = 1;
         static int p = 1;
@@ -29,8 +29,8 @@ namespace Proyecto_Lenguajes
             //regularizacion
             var comillas = '"';
             var comilla = "'";
-            MegaExpresion = MegaExpresion.Replace(" *", "*").Replace($" {comillas}", $"{comillas}").Replace($"{comillas} ", $"{comillas}").Replace($" {comilla}", $"{comilla}").Replace($"{comilla} ", $"{comilla}").Replace("''", ".").Replace("('", "(").Replace("')", ")").Replace(" ( ", "(").Replace(" | ", "|").Replace(" )", ")").Replace(" ", ".");
-            var arreglo = MegaExpresion.Substring(0, MegaExpresion.Length - 2).Split('☼');
+            MegaExpresion = MegaExpresion.Replace(" *", "*").Replace(" +", "+").Replace($" {comillas}", $"{comillas}").Replace($"{comillas} ", $"{comillas}").Replace($" {comilla}", $"{comilla}").Replace($"{comilla} ", $"{comilla}").Replace("''", ".").Replace("('", "(").Replace("')", ")").Replace(" ( ", "(").Replace(" | ", "|").Replace(" )", ")").Replace(" ", ".");
+            var arreglo = MegaExpresion.Substring(0, MegaExpresion.Length).Split('☼');
             for (int i = 0; i < SETS.Length; i++)
             {
                 SETS[i] = SETS[i].Replace(" ", "");
@@ -39,147 +39,64 @@ namespace Proyecto_Lenguajes
             {
                 LecturaDinamica(item,SETS);
             }
+
             // armar arbol general
+
         }
         void LecturaDinamica(string ExpresionActual,string[] SETS)
         {
             //representacion
             //Original
             var DiccionarioCamino = new Dictionary<string, string>();
-            string masPequeño = ExpresionActual.Substring(1, ExpresionActual.Length-2);
-            var Camino = new List<string>();
+            string masPequeño = string.Empty;
+            if (ExpresionActual.Length==1)
+            {
+                masPequeño = ExpresionActual;
+            }
+            else
+            {
+
+            masPequeño = ExpresionActual.Substring(1, ExpresionActual.Length-2);
+            }
+            //var Camino = new List<string>();
             //ir al mas pequeño
 
             if (masPequeño.Contains('('))
             {
                 var xd = Indexado(masPequeño, SETS);
                 masPequeño = xd.Value;
-                while (masPequeño.Contains('('))
+                while (!Substituicion.ContainsKey(masPequeño))
                 {
                     var index1 = masPequeño.IndexOf('(')+1;
                     var index2 = masPequeño.LastIndexOf(')');
                     var CantidadDeSubstring = index2 - index1;
-                    var aux = masPequeño.Substring(index1, CantidadDeSubstring);
-                    masPequeño = masPequeño.Replace(aux, $"[{p-1}]");
-                        p++;
-                    Camino.Add(masPequeño);
-                    DiccionarioCamino.Add($"[{p-1}]", masPequeño);
-                    masPequeño = aux;
+                    var aux = string.Empty;
+                    if (index1!=-1&& index2 != -1)
+                    {
+
+                     aux = masPequeño.Substring(index1, CantidadDeSubstring);
+                    }
+                    else
+                    {
+                        aux = masPequeño;
+
+                    }
+                    // mandar a armar el aux
+                    var alv = ArmarInterior(aux, SETS);
+                    // mandar a armar el aux
+                    masPequeño = masPequeño.Replace(aux, alv);
+                    //limpiamos 
+                    masPequeño = masPequeño.Replace($"({alv}", $".{alv}").Replace($"{alv})", $"{alv}");
+                    
+                    //Camino.Add(masPequeño);
+                    //DiccionarioCamino.Add($"[{n}]", masPequeño);
+                    //masPequeño = aux;
                 }
-                Camino.Add(masPequeño);
-                for (int i = Camino.Count- 1; i >= 0; i--)
-                {
-                    masPequeño = Camino[i].Replace("(",".").Replace(")", "");
-                    var completado = false;
-                    var Compresion = Indexado(masPequeño, SETS);
-                    var descompresion = Compresion.Key;
-                    masPequeño = Compresion.Value;
-                    var arreglado = ArreglarTexto(masPequeño, SETS, descompresion.Keys.ToArray());
-                    masPequeño = arreglado;
-                    //no contiene ningun operador
-                    if (!masPequeño.Contains('*') && !masPequeño.Contains('|') && !masPequeño.Contains('+') && !masPequeño.Contains('?') && !masPequeño.Contains('.'))
-                    {
-                        var nievo = new NodoExpresion()
-                        {
-                            Nombre = masPequeño,
-                            id = n,
-                            First = $"{n},",
-                            Last = $"{n},",
-                            Nullable = false,
-
-                        };
-                        SubArboles.Add(nievo);
-                        n++;
-                        completado = true;
-                    }
-                    if (masPequeño == "*" || masPequeño == "+" || masPequeño == "?" || masPequeño == "." || masPequeño == "|")
-                    {
-                        //armar sub arbol especial
-                        var nievo = new NodoExpresion()
-                        {
-                            Nombre = masPequeño,
-                            id = n,
-                            First = $"{n},",
-                            Last = $"{n},",
-                            Nullable = false,
-
-                        };
-                        SubArboles.Add(nievo);
-                        n++;
-                        completado = true;
-                    }
-                    //*
-                    while (masPequeño.Contains('*') && completado == false)
-                    {
-                        var Asterisco_index = masPequeño.IndexOf('*');
-
-                        if (Asterisco_index != -1 && completado == false)
-                        {
-                            var Aconstruir = masPequeño.Substring(Asterisco_index - 1, 2);
-                            // agregar y construir
-                            var xdd = Asterisco(Aconstruir, descompresion);
-                            masPequeño = masPequeño.Replace(Aconstruir, xdd);
-                        }
-                    }
-
-                    //+     
-                    while (masPequeño.Contains('+') && completado == false)
-                    {
-
-                        var Mas_index = masPequeño.IndexOf('+');
-                        if (Mas_index != -1 && completado == false)
-                        {
-
-                            // agregar y construir
-                        }
-                    }
-
-                    //.     
-                    while (masPequeño.Contains('.') && completado == false)
-                    {
-
-                        var Concatenacion_index = masPequeño.IndexOf('.');
-                        if (Concatenacion_index != -1 && completado == false)
-                        {
-                            var Aconstruir = A_Construir(masPequeño, Concatenacion_index, ".");
-
-                            var eliminar = Concatenacion(Aconstruir, descompresion);
-
-                            // agregar y construir
-                            masPequeño = masPequeño.Replace(Aconstruir, eliminar);
-                            if (Substituicion.ContainsKey(masPequeño))
-                            {
-                                SubArboles.Add(Substituicion[masPequeño]);
-                                completado = true;
-                            }
-                        }
-
-                    }
-
-                    //|
-                    while (masPequeño.Contains('|') && completado == false)
-                    {
-
-                        var Concatenacion_index = masPequeño.IndexOf('|');
-                        if (Concatenacion_index != -1 && completado == false)
-                        {
-                            var Aconstruir = A_Construir(masPequeño, Concatenacion_index, "|");
-
-                            var eliminar = Or(Aconstruir, descompresion);
-
-                            // agregar y construir
-                            masPequeño = masPequeño.Replace(Aconstruir, eliminar);
-                            if (Substituicion.ContainsKey(masPequeño))
-                            {
-                                SubArboles.Add(Substituicion[masPequeño]);
-                                completado = true;
-                            }
-                        }
-                    }
-                }
+                //Camino.Add(masPequeño);
+            
             }
             else
-            {
+            {// una expresion simple
                 var completado = false;
                 var Compresion = Indexado(masPequeño,SETS);
                 var descompresion = Compresion.Key;
@@ -241,7 +158,7 @@ namespace Proyecto_Lenguajes
                     {
                         var Aconstruir = masPequeño.Substring(Mas_index - 1, 2);
                         // agregar y construir
-                        var xdd = Asterisco(Aconstruir, descompresion);
+                        var xdd = Mas(Aconstruir, descompresion);
                         masPequeño = masPequeño.Replace(Aconstruir, xdd);
                         // agregar y construir
                     }
@@ -305,6 +222,14 @@ namespace Proyecto_Lenguajes
             if (Substituicion.ContainsKey(expresion))
             {
                 //existe, asignar
+                var nuevo = Substituicion[expresion];
+                devolver.Nombre = "*";
+                devolver.C1 = nuevo;
+                devolver.First = devolver.C1.First;
+                devolver.Last = devolver.C1.Last;
+                devolver.Nullable = true;
+                n++;
+                //existe, asignar
                 //
             }
             else
@@ -328,8 +253,16 @@ namespace Proyecto_Lenguajes
                 devolver.Nullable = true;
                 n++;
             }
-            Substituicion.Add($"[{n}]", devolver);
+            if (Substituicion.ContainsKey($"[{n}]"))
+            {
+                n++;
+                Substituicion.Add($"[{n}]", devolver);
+            }
+            else
+            {
 
+                Substituicion.Add($"[{n}]", devolver);
+            }
             return $"[{n}]";
         }
         string Asterisco(string expresion, Dictionary<string, string> diccionaro)
@@ -340,7 +273,14 @@ namespace Proyecto_Lenguajes
             //ir a traer
             if (Substituicion.ContainsKey(expresion))
             {
-            //existe, asignar
+                //existe, asignar
+                var nuevo = Substituicion[expresion];
+                devolver.Nombre = "*";
+                devolver.C1 = nuevo;
+                devolver.First = devolver.C1.First;
+                devolver.Last = devolver.C1.Last;
+                devolver.Nullable = true;
+                n++;
                 //
             }
             else
@@ -364,7 +304,17 @@ namespace Proyecto_Lenguajes
                 devolver.Nullable = true;
                 n++;
             }
+
+            if (Substituicion.ContainsKey($"[{n}]"))
+            {
+                n++;
             Substituicion.Add($"[{n}]",devolver);
+            }
+            else
+            {
+
+            Substituicion.Add($"[{n}]",devolver);
+            }
 
             return $"[{n}]";
         }
@@ -629,14 +579,24 @@ namespace Proyecto_Lenguajes
             {
                 devolver += completo[indice - 1];
             }
-            if (completo[indice+1] == '[')
+            if (operacion == "|"|| operacion == ".")
             {
-                var last =completo.LastIndexOf(']');
-                devolver += $"{operacion}{completo.Substring(indice + 1, (last - indice))}";
+
+                if (completo[indice + 1] == '[')
+                {
+                    var last = completo.LastIndexOf(']');
+                    devolver += $"{operacion}{completo.Substring(indice + 1, (last - indice))}";
+                }
+                else
+                {
+                    devolver += $"{operacion}{completo[indice + 1]}";
+
+                }
             }
             else
             {
-                devolver += $"{operacion}{completo[indice +1]}";
+                devolver += operacion;
+
 
             }
             return devolver;
@@ -683,17 +643,119 @@ namespace Proyecto_Lenguajes
             }
             return copia;
         }
-        string Factor_Comun(string sub_expresion)
+       
+        string ArmarInterior(string masPequeño, string[]SETS)
         {
-            if (sub_expresion.Contains('|'))
+            var completado = false;
+            var Compresion = Indexado(masPequeño, SETS);
+            var descompresion = Compresion.Key;
+            masPequeño = Compresion.Value;
+            var arreglado = ArreglarTexto(masPequeño, SETS, descompresion.Keys.ToArray());
+            masPequeño = arreglado;
+            //no contiene ningun operador
+            if (!masPequeño.Contains('*') && !masPequeño.Contains('|') && !masPequeño.Contains('+') && !masPequeño.Contains('?') && !masPequeño.Contains('.'))
+            {
+                var nievo = new NodoExpresion()
+                {
+                    Nombre = masPequeño,
+                    id = n,
+                    First = $"{n},",
+                    Last = $"{n},",
+                    Nullable = false,
+
+                };
+                SubArboles.Add(nievo);
+                n++;
+                completado = true;
+            }
+            if (masPequeño == "*" || masPequeño == "+" || masPequeño == "?" || masPequeño == "." || masPequeño == "|")
+            {
+                //armar sub arbol especial
+                var nievo = new NodoExpresion()
+                {
+                    Nombre = masPequeño,
+                    id = n,
+                    First = $"{n},",
+                    Last = $"{n},",
+                    Nullable = false,
+
+                };
+                SubArboles.Add(nievo);
+                n++;
+                completado = true;
+            }
+            //*
+            while (masPequeño.Contains('*') && completado == false)
+            {
+                var Asterisco_index = masPequeño.IndexOf('*');
+
+                if (Asterisco_index != -1 && completado == false)
+                {
+                    var Aconstruir = A_Construir(masPequeño, Asterisco_index, "*");
+                    // agregar y construir
+                    var xdd = Asterisco(Aconstruir, descompresion);
+                    masPequeño = masPequeño.Replace(Aconstruir, xdd);
+                }
+            }
+
+            //+     
+            while (masPequeño.Contains('+') && completado == false)
             {
 
+                var Mas_index = masPequeño.IndexOf('+');
+                if (Mas_index != -1 && completado == false)
+                {
+                    var Aconstruir = masPequeño.Substring(Mas_index - 1, 2);
+                    // agregar y construir
+                    var xdd = Mas(Aconstruir, descompresion);
+                    masPequeño = masPequeño.Replace(Aconstruir, xdd);
+                    // agregar y construir
+                }
             }
-            else if (sub_expresion.Contains('+'))
+
+            //.     
+            while (masPequeño.Contains('.') && completado == false)
             {
 
+                var Concatenacion_index = masPequeño.IndexOf('.');
+                if (Concatenacion_index != -1 && completado == false)
+                {
+                    var Aconstruir = A_Construir(masPequeño, Concatenacion_index, ".");
+
+                    var eliminar = Concatenacion(Aconstruir, descompresion);
+
+                    // agregar y construir
+                    masPequeño = masPequeño.Replace(Aconstruir, eliminar);
+                    if (Substituicion.ContainsKey(masPequeño))
+                    {
+                        SubArboles.Add(Substituicion[masPequeño]);
+                        completado = true;
+                    }
+                }
+
             }
-            return "";
+
+            //|
+            while (masPequeño.Contains('|') && completado == false)
+            {
+
+                var Concatenacion_index = masPequeño.IndexOf('|');
+                if (Concatenacion_index != -1 && completado == false)
+                {
+                    var Aconstruir = A_Construir(masPequeño, Concatenacion_index, "|");
+
+                    var eliminar = Or(Aconstruir, descompresion);
+
+                    // agregar y construir
+                    masPequeño = masPequeño.Replace(Aconstruir, eliminar);
+                    if (Substituicion.ContainsKey(masPequeño))
+                    {
+                        SubArboles.Add(Substituicion[masPequeño]);
+                        completado = true;
+                    }
+                }
+            }
+            return masPequeño;
         }
     }
 }
