@@ -13,7 +13,7 @@ namespace Proyecto_Lenguajes
         {
             Console.WriteLine("Arrastrar El Archivo de prueba hacia la consola");
             var linea_actual = 0;
-            var path = Console.ReadLine();
+            var path = "C:\\Users\\roche\\Desktop\\Lenguajes\\archivo 19.txt";
             var reader = new StreamReader(path);
             var linea = reader.ReadLine(); linea_actual++;
             linea = linea.Replace(" ","");
@@ -23,9 +23,9 @@ namespace Proyecto_Lenguajes
             var Actions = new Dictionary<string,string>();
             var MegaExpresion = string.Empty;
             var comillas = '"';
-            //C:\Users\roche\Desktop\Lenguajes\ProyectoLenguajes\Archivo Prueba.txt
+            //C:\Users\roche\Desktop\Lenguajes\archivo 19.txt
             //leer Sets
-          
+
             while (linea != "TOKENS")
             {
                linea = reader.ReadLine(); linea_actual++;
@@ -113,22 +113,22 @@ namespace Proyecto_Lenguajes
             }
             MegaExpresion += "Ø";//Ø=157
             var Raiz = new NodoExpresion();
-            try
-            {
+            //try
+           // {
             Raiz =Arbol_De_Expresiones.Instance.Generar_Arbol(MegaExpresion,SETS.Keys.ToArray());
 
-            }
-            catch (Exception)
-            {
-                Console.Clear();
-                Console.BackgroundColor = ConsoleColor.White;
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Error => Token no encontrado");
+            //}
+            //catch (Exception)
+            //{
+            //    Console.Clear();
+            //    Console.BackgroundColor = ConsoleColor.White;
+            //    Console.ForegroundColor = ConsoleColor.Red;
+            //    Console.WriteLine($"Error => Token no encontrado");
 
-                Console.ReadLine();
-                Environment.Exit(0);
-                throw;
-            }
+            //    Console.ReadLine();
+            //    Environment.Exit(0);
+            //    throw;
+            //}
             //Arbol_De_Expresiones.Instance.Inorder(Arbol_De_Expresiones.Instance.Diccionario_Nodos);
             ///mostrar SETS
             foreach (var set in SETS)
@@ -247,7 +247,7 @@ namespace Proyecto_Lenguajes
             var n = 1;
             foreach (var item in Arbol_De_Expresiones.Instance.NodosHoja)
             {
-                Console.WriteLine($"Hoja No.{n}: {item.Nombre}");
+                Console.WriteLine($"Hoja No.{n}: {item.Value.id}");
                 n++;
             }
 

@@ -13,7 +13,7 @@ namespace Proyecto_Lenguajes
         public static NodoExpresion Raiz = new NodoExpresion();
         public List<NodoExpresion> SubArboles = new List<NodoExpresion>();
         public Dictionary<string, NodoExpresion> Substituicion = new Dictionary<string, NodoExpresion>();
-        public List<NodoExpresion> NodosHoja = new List<NodoExpresion>();
+        public Dictionary<string, NodoExpresion> NodosHoja = new Dictionary<string, NodoExpresion>();
         public Dictionary<string, List<string>> Alfabeto = new Dictionary<string, List<string>>();
         public static Arbol_De_Expresiones Instance
         {
@@ -26,7 +26,7 @@ namespace Proyecto_Lenguajes
 
         public Dictionary<string, string> Follows= new Dictionary<string, string>();
         public Dictionary<string,List<string>> EstadosD= new Dictionary<string, List<string>>();
-        public Dictionary<string, string> trandD= new Dictionary<string, string>();
+        public Dictionary<string, string> Transiciones= new Dictionary<string, string>();
 
 
 
@@ -57,7 +57,7 @@ namespace Proyecto_Lenguajes
             Raiz = ObtenerRaiz(SubArboles[0],SubArboles[1]);
             CalcularFollows();
             Alfabeto = ObtenerALfabeto();
-          // ObtenerAFD();
+           ObtenerAFD();
             return Raiz;
         }
         void LecturaDinamica(string ExpresionActual,string[] SETS)
@@ -130,7 +130,7 @@ namespace Proyecto_Lenguajes
                         Nullable=false,
                         
                     };
-                    NodosHoja.Add(nievo);
+                    NodosHoja.Add(nievo.id.ToString(),nievo);
 
                     SubArboles.Add(nievo);
                     IndiceSubstiucion++;
@@ -148,7 +148,7 @@ namespace Proyecto_Lenguajes
                         Nullable = false,
 
                     };
-                    NodosHoja.Add(nievo);
+                    NodosHoja.Add(nievo.id.ToString(),nievo);
 
                     SubArboles.Add(nievo);
                     IndiceSubstiucion++;
@@ -258,7 +258,7 @@ namespace Proyecto_Lenguajes
                     Nullable = false,
 
                 };
-                NodosHoja.Add(nievo);
+                NodosHoja.Add(nievo.id.ToString(), nievo);
 
                 SubArboles.Add(nievo);
                 IndiceSubstiucion++;
@@ -276,9 +276,9 @@ namespace Proyecto_Lenguajes
                     Nullable = false,
 
                 };
-                NodosHoja.Add(nievo);
-
+                NodosHoja.Add(nievo.id.ToString(), nievo);
                 SubArboles.Add(nievo);
+                //obtener AFd
                 IndiceSubstiucion++;
                 completado = true;
             }
@@ -408,10 +408,10 @@ namespace Proyecto_Lenguajes
                 devolver.First = devolver.C1.First;
                 devolver.Last = devolver.C1.Last;
                 devolver.Nullable = false;
-                NodosHoja.Add(hoja);
+                NodosHoja.Add(hoja.id.ToString(), hoja);
 
 
-                
+
                 IndiceSubstiucion++;
             }
             if (Substituicion.ContainsKey($"[{IndiceSubstiucion}]"))
@@ -463,9 +463,9 @@ namespace Proyecto_Lenguajes
                 devolver.First = devolver.C1.First;
                 devolver.Last= devolver.C1.Last;
                 devolver.Nullable = true;
-                NodosHoja.Add(hoja);
-
+                NodosHoja.Add(hoja.id.ToString(), hoja);
                 IndiceSubstiucion++;
+
             }
 
             if (Substituicion.ContainsKey($"[{IndiceSubstiucion}]"))
@@ -505,7 +505,7 @@ namespace Proyecto_Lenguajes
                         id = IndiceSubstiucion,
                     };
 
-                    NodosHoja.Add(nuevo.C1);
+                    NodosHoja.Add(nuevo.C1.id.ToString(), nuevo.C1);
                 }
                 else
                 {
@@ -518,7 +518,7 @@ namespace Proyecto_Lenguajes
                         Padre = nuevo,
                         id = IndiceSubstiucion,
                     };
-                    NodosHoja.Add(nuevo.C1);
+                    NodosHoja.Add(nuevo.C1.id.ToString(),nuevo.C1);
 
                 }
                 IndiceSubstiucion++;
@@ -540,7 +540,7 @@ namespace Proyecto_Lenguajes
                         Padre = nuevo,
                         id = IndiceSubstiucion,
                     };
-                    NodosHoja.Add(nuevo.C2);
+                    NodosHoja.Add(nuevo.C2.id.ToString(),nuevo.C2);
 
                 }
                 else
@@ -554,7 +554,7 @@ namespace Proyecto_Lenguajes
                         Padre = nuevo,
                         id = IndiceSubstiucion,
                     };
-                    NodosHoja.Add(nuevo.C2);
+                    NodosHoja.Add(nuevo.C2.id.ToString(), nuevo.C2);
 
                 }
                 IndiceSubstiucion++;
@@ -630,7 +630,7 @@ namespace Proyecto_Lenguajes
                         Padre = nuevo,
                         id = IndiceSubstiucion,
                     };
-                    NodosHoja.Add(nuevo.C1);
+                    NodosHoja.Add(nuevo.C1.id.ToString(), nuevo.C1);
 
                 }
                 else
@@ -644,7 +644,7 @@ namespace Proyecto_Lenguajes
                         Padre = nuevo,
                         id = IndiceSubstiucion,
                     };
-                    NodosHoja.Add(nuevo.C1);
+                    NodosHoja.Add(nuevo.C1.id.ToString(), nuevo.C1);
 
                 }
                 IndiceSubstiucion++;
@@ -666,7 +666,7 @@ namespace Proyecto_Lenguajes
                         Padre = nuevo,
                         id = IndiceSubstiucion,
                     };
-                    NodosHoja.Add(nuevo.C2);
+                    NodosHoja.Add(nuevo.C2.id.ToString(),nuevo.C2);
 
                 }
                 else
@@ -680,7 +680,7 @@ namespace Proyecto_Lenguajes
                         Padre = nuevo,
                         id = IndiceSubstiucion,
                     };
-                    NodosHoja.Add(nuevo.C2);
+                    NodosHoja.Add(nuevo.C2.id.ToString(), nuevo.C2);
 
                 }
                 IndiceSubstiucion++;
@@ -758,7 +758,7 @@ namespace Proyecto_Lenguajes
                 devolver.First = devolver.C1.First;
                 devolver.Last = devolver.C1.Last;
                 devolver.Nullable = true;
-                NodosHoja.Add(hoja);
+                NodosHoja.Add(hoja.id.ToString(), hoja.C2);
 
                 IndiceSubstiucion++;
             }
@@ -937,7 +937,7 @@ namespace Proyecto_Lenguajes
        {
             foreach (var item in NodosHoja)
             {
-                Follows.Add(item.id.ToString(),"");
+                Follows.Add(item.Value.id.ToString(),"");
             }
             Inorder(Raiz);
        }
@@ -994,63 +994,110 @@ namespace Proyecto_Lenguajes
             var aux = new Dictionary<string, List<string>>();
             foreach (var item in NodosHoja)
             {
-                if (!aux.ContainsKey(item.Nombre))
+                if (!aux.ContainsKey(item.Value.Nombre))
                 {
-                    aux.Add(item.Nombre,new List<string>());
-                    aux[item.Nombre].Add(item.id.ToString());
+                    aux.Add(item.Value.Nombre,new List<string>());
+                    aux[item.Value.Nombre].Add(item.Value.id.ToString());
                 }
                 else
                 {
-                    aux[item.Nombre].Add(item.id.ToString());
+                    aux[item.Value.Nombre].Add(item.Value.id.ToString());
 
                 }
             }
             return aux;
         }
         void ObtenerAFD()
-        { var conta = 1;
-            var q = 1;
+        {
+            var FollowsAux = Follows; 
+            var Trancisiones = new List<string>();
             var inicio = Raiz.First.Split(',');
+            var SiguienteEstado = 1;
             var listaaux = new List<string>();
-            foreach (var item in inicio)
-            {
-                if (item!="")
-                {
-                    listaaux.Add(item);
-                }
-            }
-            EstadosD.Add($"Q{q}", listaaux);
 
-            while (true)
+
+
+            //estado inicial 
+            // nombre - Estados
+            var alfabeto = ObtenerALfabeto();
+            EstadosD.Add($"Q{0}", ListaSinRepetidosYORdenada(Raiz.First.Split(',')));
+            for (int i = 0; i < EstadosD.Count; i++)
             {
-                var lista = new List<KeyValuePair<string, List<string>>>();
-                var ultimaspos = string.Empty;
-                //para cada nodo dentro del estado
-                foreach (var Estado in EstadosD[$"Q{conta}"])
+                //Para cada expresion del alfabeto
+                foreach (var Expresion in alfabeto)
                 {
-                    //Para cada caracter dentro del alfabeto
-                    foreach (var caracter  in Alfabeto.Keys)
-                    {//para cada nodo que haga match
-                        foreach (var hoja in NodosHoja)
+
+                     var NodosCorrespondientes = new List<string>();
+                    //ver que nodos corresponden a la expresion actual
+                    foreach (var nodo in EstadosD[$"Q{i}"])
+                    {
+                        var actual = NodosHoja[nodo].Nombre;
+                        if (actual== Expresion.Key)
+                        {//si corresponde
+                            NodosCorrespondientes.Add(NodosHoja[nodo].id.ToString());
+                        }
+
+                        //var auxtrand = string.Empty;
+                        ////uniendo los siguiente pos
+                        //foreach (var item in NodosCorrespondientes)
+                        //{
+                        //    auxtrand += Follows[item];    
+                        //}
+                        ////verificar existencia de conjunto
+                        //var asignado = false;
+                        //foreach (var item in EstadosD)
+                        //{
+                        //    var conjunto = ObtenerArreglo( item.Value);
+                        //    var TrandComparar = ObtenerArreglo(ListaSinRepetidosYORdenada(auxtrand.Split(',')));
+                        //    if (TrandComparar == conjunto)
+                        //    {
+                        //        Transiciones.Add($"Q{i+2}={Expresion.Key}", item.Key);
+                        //        asignado = true;
+                        //        //no agregamos mas estados
+                        //        //asignar transicion correspondiente 
+                        //    }
+                            
+                        //}
+                        ////no ha sido asignado
+                        //if (!asignado)
+                        //{
+                        //Transiciones.Add($"Q{i+1}={Expresion.Key}", $"Q{i + 2}" /*El siguiente*/);
+                        //EstadosD.Add($"Q{i + 2}", ListaSinRepetidosYORdenada(auxtrand.Split(',')));
+                        //}
+
+                    }
+                    var auxtrand = string.Empty;
+                    //uniendo los siguiente pos
+                    foreach (var item in NodosCorrespondientes)
+                    {
+                        auxtrand += Follows[item];
+                    }
+                    //verificar existencia de conjunto
+                    if (NodosCorrespondientes.Count >=1)
+                    {
+
+                        var asignado = false;
+                        foreach (var item in EstadosD)
                         {
-                            if (hoja.Nombre == caracter)
+                            var conjunto = ObtenerArreglo(item.Value);
+                            var TrandComparar = ObtenerArreglo(ListaSinRepetidosYORdenada(auxtrand.Split(',')));
+                            if (TrandComparar == conjunto)
                             {
-                                ultimaspos += Follows[hoja.id.ToString()];
+                                Transiciones.Add($"Q{i + 2}^{Expresion.Key}", item.Key);
+                                asignado = true;
+                                //no agregamos mas estados
+                                //asignar transicion correspondiente 
                             }
 
                         }
-                        //agregar a trand
-                        var caminito = ultimaspos.Split(',');
-                        listaaux = ListaSinRepetidosYORdenada(caminito);
-                        q++;
-                        lista.Add(new KeyValuePair<string, List<string>>($"Q{q}", listaaux));
-                        trandD.Add($"Q{conta},{caracter}", $"Q{q}");
+                        //no ha sido asignado
+                        if (!asignado)
+                        {
+                            Transiciones.Add($"Q{i}^{Expresion.Key}", $"Q{SiguienteEstado}" /*El siguiente*/);
+                            EstadosD.Add($"Q{SiguienteEstado}", ListaSinRepetidosYORdenada(auxtrand.Split(',')));
+                            SiguienteEstado++;
+                        }
                     }
-                    
-                }
-               
-                foreach (var item in lista)
-                {
 
                 }
             }
@@ -1071,6 +1118,14 @@ namespace Proyecto_Lenguajes
 
             return listaaux;
         }
-
+        string ObtenerArreglo(List<string> Lista)
+        {
+            var salida = string.Empty;
+            foreach (var item in Lista)
+            {
+                salida += $"{item},";
+            }
+            return salida;
+        }
     }
 }
