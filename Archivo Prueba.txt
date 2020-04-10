@@ -1,0 +1,32 @@
+SETS 
+	LETRA   = 'A'..'Z'+'a'..'z'+'_'  
+	DIGITO  = '0'..'9'  
+	CHARSET = CHR(32)..CHR(254) 
+TOKENS
+	TOKEN 1= DIGITO  DIGITO *
+	TOKEN 2='"' CHARSET '"'|''' CHARSET '''                       
+	TOKEN  4  = '=' 
+	TOKEN  5  = '<''>' 
+	TOKEN  6  = '<'
+	TOkEN   7  = '>'			
+	TOKEN  8  = '>''='			
+	TOKEN  9  = '<''='
+	TOKEN  10  = '+' 
+	TOKEN  11  = '-' 
+	TOKEN  12  = 'O''R' 
+	TOKEN  13  = '*' 
+	TOKEN  14  = 'A''N''D'
+	TOKEN    15  = 'M''O''D'
+	TOKEN  16  = 'D''I''V'             
+	TOKEN 3= LETRA ( LETRA | DIGITO )*  
+ACTIONS
+	RESERVADAS() 
+	{
+		18 = 'PROGRAM'
+		19 = 'INCLUDE'
+		20 = 'CONST'
+		21 = 'TYPE' 
+		22 = 'VAR' 
+	} 
+ 
+ERROR = 54 
