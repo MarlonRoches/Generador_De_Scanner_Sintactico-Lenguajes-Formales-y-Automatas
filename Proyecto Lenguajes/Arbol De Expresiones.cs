@@ -1009,13 +1009,7 @@ namespace Proyecto_Lenguajes
         }
         void ObtenerAFD()
         {
-            var FollowsAux = Follows; 
-            var Trancisiones = new List<string>();
-            var inicio = Raiz.First.Split(',');
             var SiguienteEstado = 1;
-            var listaaux = new List<string>();
-
-
 
             //estado inicial 
             // nombre - Estados
@@ -1036,35 +1030,6 @@ namespace Proyecto_Lenguajes
                         {//si corresponde
                             NodosCorrespondientes.Add(NodosHoja[nodo].id.ToString());
                         }
-
-                        //var auxtrand = string.Empty;
-                        ////uniendo los siguiente pos
-                        //foreach (var item in NodosCorrespondientes)
-                        //{
-                        //    auxtrand += Follows[item];    
-                        //}
-                        ////verificar existencia de conjunto
-                        //var asignado = false;
-                        //foreach (var item in EstadosD)
-                        //{
-                        //    var conjunto = ObtenerArreglo( item.Value);
-                        //    var TrandComparar = ObtenerArreglo(ListaSinRepetidosYORdenada(auxtrand.Split(',')));
-                        //    if (TrandComparar == conjunto)
-                        //    {
-                        //        Transiciones.Add($"Q{i+2}={Expresion.Key}", item.Key);
-                        //        asignado = true;
-                        //        //no agregamos mas estados
-                        //        //asignar transicion correspondiente 
-                        //    }
-                            
-                        //}
-                        ////no ha sido asignado
-                        //if (!asignado)
-                        //{
-                        //Transiciones.Add($"Q{i+1}={Expresion.Key}", $"Q{i + 2}" /*El siguiente*/);
-                        //EstadosD.Add($"Q{i + 2}", ListaSinRepetidosYORdenada(auxtrand.Split(',')));
-                        //}
-
                     }
                     var auxtrand = string.Empty;
                     //uniendo los siguiente pos
@@ -1083,7 +1048,7 @@ namespace Proyecto_Lenguajes
                             var TrandComparar = ObtenerArreglo(ListaSinRepetidosYORdenada(auxtrand.Split(',')));
                             if (TrandComparar == conjunto)
                             {
-                                Transiciones.Add($"Q{i + 2}^{Expresion.Key}", item.Key);
+                                Transiciones.Add($"Q{i}^{Expresion.Key}", item.Key);
                                 asignado = true;
                                 //no agregamos mas estados
                                 //asignar transicion correspondiente 
