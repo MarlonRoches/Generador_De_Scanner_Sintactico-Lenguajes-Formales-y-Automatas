@@ -32,7 +32,7 @@ namespace Proyecto_Lenguajes
 
         static int IndiceSubstiucion = 1;
 
-        public NodoExpresion Generar_Arbol(string MegaExpresion, string[]SETS)
+        public Dictionary<string, string>Generar_Arbol(string MegaExpresion, string[]SETS)
         {
             //regularizacion
             var comillas = '"';
@@ -58,7 +58,7 @@ namespace Proyecto_Lenguajes
             CalcularFollows();
             Alfabeto = ObtenerALfabeto();
            ObtenerAFD();
-            return Raiz;
+            return Transiciones;
         }
         void LecturaDinamica(string ExpresionActual,string[] SETS)
         {

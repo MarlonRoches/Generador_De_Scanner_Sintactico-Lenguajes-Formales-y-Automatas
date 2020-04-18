@@ -9,42 +9,48 @@ namespace Proyecto_Lenguajes
 {
     class Program
     {
+        private static string cadena;
+        private static int i;
+
         static void Main(string[] args)
         {
+            var SETS = new Dictionary<string, List<char>>();
+            var TOKENS = new Dictionary<string, string>();
+            var Error = new Dictionary<string, string>();
+            var Actions = new Dictionary<string, string>();
+            #region Fase 1
+
             Console.WriteLine("Arrastrar El Archivo de prueba hacia la consola");
             var linea_actual = 0;
             var path = "C:\\Users\\roche\\Desktop\\Lenguajes\\archivo 19.txt";
             var reader = new StreamReader(path);
             var linea = reader.ReadLine(); linea_actual++;
-            linea = linea.Replace(" ","");
-            var SETS = new Dictionary<string, List<char>>();
-            var TOKENS = new Dictionary<string,string>();
-            var Error = new Dictionary<string,string>();
-            var Actions = new Dictionary<string,string>();
+            linea = linea.Replace(" ", "");
             var MegaExpresion = string.Empty;
             var comillas = '"';
+            var comillaSimple = "'";
             //C:\Users\roche\Desktop\Lenguajes\archivo 19.txt
             //leer Sets
 
             while (linea != "TOKENS")
             {
-               linea = reader.ReadLine(); linea_actual++;
+                linea = reader.ReadLine(); linea_actual++;
                 if (linea == "TOKENS")
                 {
                     break;
                 }
-                var SetId = linea.Substring(0,linea.IndexOf('=')).Replace("\t","");
-               var TokensArray = linea.Remove(0,linea.IndexOf('=')+1).Trim().Split('+');
+                var SetId = linea.Substring(0, linea.IndexOf('=')).Replace("\t", "");
+                var TokensArray = linea.Remove(0, linea.IndexOf('=') + 1).Trim().Split('+');
                 //validar chars
-                 foreach (var item in TokensArray)
-                 {
-                    var lol = item.Replace("..", "").Replace("...","").ToCharArray();
+                foreach (var item in TokensArray)
+                {
+                    var lol = item.Replace("..", "").Replace("...", "").ToCharArray();
                     if (!SETS.ContainsKey(SetId))
                     {
-                        SetId = SetId.Replace("  "," ");
+                        SetId = SetId.Replace("  ", " ");
                         SETS.Add(SetId, new List<char>());
                     }
-                    if (lol.Length==1)
+                    if (lol.Length == 1)
                     {
                         SETS[SetId].Add(lol[0]);
                     }
@@ -57,24 +63,25 @@ namespace Proyecto_Lenguajes
                             SETS[SetId].Add((char)i);
                         }
                     }
-                   
-                 }
-                
+
+                }
+
             }
 
             //leer
-            linea = reader.ReadLine(); linea_actual++;
+            linea = reader.ReadLine();
+            linea_actual++;
             while (linea != "ACTIONS")
-                {
-                
+            {
+
                 if (linea.Contains("'''"))
                 {
 
-                    linea = linea.Replace("\t","").Replace("'''", "'").Replace("  ", " ").Replace(("'"+'"'+"'").ToString(),comillas.ToString());
+                    linea = linea.Replace("\t", "").Replace("'''", "'").Replace("  ", " ").Replace(("'" + '"' + "'").ToString(), comillas.ToString());
                 }
                 else
                 {
-                     linea =linea.Replace("\t","").Replace("  ", " ");
+                    linea = linea.Replace("\t", "").Replace("  ", " ");
 
                 }
 
@@ -85,8 +92,8 @@ namespace Proyecto_Lenguajes
                 else
                 {
 
-                    var TokenId = linea.Substring(0,linea.IndexOf('=')).Replace("  ", " ");
-                    var Expresion = linea.Remove(0,linea.IndexOf('=')+1).Trim();
+                    var TokenId = linea.Substring(0, linea.IndexOf('=')).Replace("  ", " ");
+                    var Expresion = linea.Remove(0, linea.IndexOf('=') + 1).Trim();
                     if (TOKENS.ContainsKey(TokenId))
                     {
                         //ya existe el token
@@ -95,28 +102,27 @@ namespace Proyecto_Lenguajes
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine($"Error en la linea {linea_actual}");
                         Console.WriteLine($"{TokenId} => {Expresion}  repetido");
-                        
-                        
+
+
                         Console.ReadLine();
                         Environment.Exit(0);
                     }
                     else
                     {
-                    TOKENS.Add(TokenId, Expresion);
+                        TOKENS.Add(TokenId, Expresion);
 
                     }
 
-                    
+
                     MegaExpresion += $"({Expresion})☼";//☼ = 15
                 }
                 linea = reader.ReadLine(); linea_actual++;
             }
             MegaExpresion += "Ø";//Ø=157
-            var Raiz = new NodoExpresion();
-            //try
-           // {
-            Raiz =Arbol_De_Expresiones.Instance.Generar_Arbol(MegaExpresion,SETS.Keys.ToArray());
-
+                                 //try
+                                 // {
+            var Transiciones = Arbol_De_Expresiones.Instance.Generar_Arbol(MegaExpresion, SETS.Keys.ToArray());
+            var Raiz = Arbol_De_Expresiones.Raiz;
             //}
             //catch (Exception)
             //{
@@ -130,6 +136,32 @@ namespace Proyecto_Lenguajes
             //    throw;
             //}
             //Arbol_De_Expresiones.Instance.Inorder(Arbol_De_Expresiones.Instance.Diccionario_Nodos);
+
+            while (linea.Trim() != "{")
+            {
+                linea = reader.ReadLine();
+
+            }
+
+            linea = reader.ReadLine();
+            while (linea.Trim() != "}")
+            {
+
+                var Array = linea.Trim().Replace(" ", "").Replace(comillaSimple, "").Split('=');
+                Actions.Add(Array[1], Array[0]);
+                linea = reader.ReadLine();
+
+            }
+
+            while (linea != null)
+            {
+                if (linea.ToLower().Contains("error"))
+                {
+                    var Array = linea.Trim().Replace(" ", "").Replace(comillaSimple, "").Split('=');
+                    Error.Add(Array[1], Array[0]);
+                }
+                linea = reader.ReadLine();
+            }
             ///mostrar SETS
             foreach (var set in SETS)
             {
@@ -145,31 +177,31 @@ namespace Proyecto_Lenguajes
             ///errores
             ///enumeracion de tokens
             Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("TOKENS");
+            Console.WriteLine("TOKENS");
             foreach (var item in TOKENS)
             {
                 Console.WriteLine($"{item.Key}: { item.Value}");
             }
             ///escritura de tokens
-            
+
             ///firts
-                Console.WriteLine();
+            Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("FIRSTS");
+            Console.WriteLine("FIRSTS");
             EscribirFirsts(Raiz);
-            
+
             ///lasts
-                Console.WriteLine();
+            Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.DarkRed;
-                Console.WriteLine("LASTS");
+            Console.WriteLine("LASTS");
             EscribirLst(Raiz);
-            
+
             ///follows
-                Console.WriteLine();
+            Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine("FOLLOWS");
+            Console.WriteLine("FOLLOWS");
             EscribirFollows();
-            
+
             // PRIMERA FASE
             #region Comentado
             //while (linea != null)
@@ -250,35 +282,136 @@ namespace Proyecto_Lenguajes
                 Console.WriteLine($"Hoja No.{n}: {item.Value.id}");
                 n++;
             }
+            #endregion
 
             Console.ReadLine();
+
+            var Posibilidades = new Dictionary<string, List<string>>();
+            foreach (var item in SETS)
+            {
+                foreach (var nodo in item.Value)
+                {
+
+                }
+            }
+
+
+
+
+            //var ruta = Console.ReadLine().Replace(comillas.ToString(),""); var Archivo = new FileStream(ruta, FileMode.Open); var Reader = new StreamReader(Archivo);
+            //var Lectura = string.Empty;
+            //while (Lectura!=null)
+            //{
+            //    foreach (var item in Lectura)
+            //    {
+
+            //        switch (switch_on)
+            //        {
+            //            default:
+            //        }
+            //    }
+            //    Lectura = reader.ReadLine();
+            //}
+
+
+            ////-------------------------------------------------
+            //var Estado = 0;
+            //    switch (Estado)
+            //    {
+            //        case 1:
+            //            if (cadena[i] == 9 || cadena[i] == 10 || cadena[i] == 13 ||
+            //            cadena[i] == 26 || cadena[i] == 32)
+            //            {
+            //                if (cadena[i] == 13) then i++;
+            //            }
+            //            else if ((cadena[i] >= 48 && cadena[i] <= 57))
+            //            {
+            //                Estado = 2;
+            //            } else if ((cadena[i] == 61))
+            //            {
+            //                Estado = 3;
+            //            } else if ((cadena[i] == 58))
+            //            {
+
+            //                Estado = 4;
+            //            }
+            //            else if ((cadena[i] >= 97 && cadena[i] <= 122) || (cadena[i] == 95) || (cadena[i] >= 65 && cadena[i] <= 90))
+            //            {
+            //                Estado = 5;
+            //            }
+            //            else
+            //            {
+            //                Error = true;
+            //                Salir = true;
+            //            };
+            //            break;
+            //        case 2:
+            //            if ((cadena[i] >= 48 && cadena[i] <= 57))
+            //                Estado = 2;
+            //            else
+            //            {
+            //                Retroceso();
+            //                Salir = true;
+            //            };
+            //            break;
+            //        case 4:
+            //            if ((cadena[i] == 61))
+            //                Estado = 6;
+            //            else
+            //            {
+            //                Error = true;
+            //                Salir = true;
+            //            };
+            //            break;
+            //        case 5:
+            //            if ((cadena[i] >= 97 && cadena[i] <= 122)
+            //            || (cadena[i] == 95)
+            //            || (cadena[i] >= 65 && cadena[i] <= 90)
+            //            || (cadena[i] >= 48 && cadena[i] <= 57))
+            //                Estado = 5;
+            //            else
+            //            {
+            //                Retroceso();
+            //                Salir = true;
+            //            };
+            //            break;
+            //            /*Case para estado y sus correspondiente no. de token*/
+            //            switch (Estado)
+            //            {
+            //                case 2: NumToken = 1; break;
+            //                case 3: NumToken = 2; break;
+            //                case 5: NumToken = 4; break;
+            //                case 6: NumToken = 3; break;
+            //                default:
+            //                    NumToken = 9;// el error
+            //                    Error = true;
+            //            };
 
             void Inorder(NodoExpresion Root)
             {
                 if (Root != null)
                 {
                     Inorder(Root.C1);
-                    if (Root.Nombre=="|"|| Root.Nombre == "." || Root.Nombre == "*" || Root.Nombre == "?" || Root.Nombre == "+")
+                    if (Root.Nombre == "|" || Root.Nombre == "." || Root.Nombre == "*" || Root.Nombre == "?" || Root.Nombre == "+")
                     {
 
-                    Console.Write(Root.Nombre + " ");
+                        Console.Write(Root.Nombre + " ");
                     }
                     else
                     {
-                    Console.Write($"'{Root.Nombre}'" + " ");
+                        Console.Write($"'{Root.Nombre}'" + " ");
 
                     }
                     Inorder(Root.C2);
                 }
             }
-
             void EscribirFirsts(NodoExpresion Root)
             {
                 if (Root != null)
                 {
                     EscribirFirsts(Root.C1);
-                    
-                        Console.WriteLine($"Hoja:{Root.Nombre}: First =>{ Root.First}");
+
+                    Console.WriteLine($"Hoja:{Root.Nombre}: First =>{ Root.First}");
 
                     EscribirFirsts(Root.C2);
                 }
@@ -293,7 +426,6 @@ namespace Proyecto_Lenguajes
                     EscribirLst(Root.C2);
                 }
             }
-
             void EscribirFollows()
             {
                 foreach (var item in Arbol_De_Expresiones.Instance.Follows)
@@ -302,6 +434,7 @@ namespace Proyecto_Lenguajes
                 }
             }
         }
-            
+
     }
+    
 }
