@@ -286,7 +286,8 @@ namespace Proyecto_Lenguajes
 
             //Console.ReadLine();
 
-            var Posibilidades = new Dictionary<string, string>();
+            var Compuestos = new Dictionary<string, string>();
+            var Simples = new Dictionary<string, string>();
             var Alfabeto = "";
 
             
@@ -301,33 +302,48 @@ namespace Proyecto_Lenguajes
             foreach (var item in TOKENS)
             {
                 var key = item.Key.Split('^');
-                if (!Posibilidades.ContainsKey(item.Key))
+                if (!Compuestos.ContainsKey(item.Key))
                 {
-                    var aux = item.Value.Replace("+","").Replace("*","").Replace("|","").Replace(".","").Replace("(", "").Replace(")", "").Replace("'", "").Replace("  ", " ").Trim().Split(' ');
-                    var lel = SinRepetidos(aux);
-                    Posibilidades.Add(item.Key.Trim(), "");
-                    
-                    for (int i = 0; i < lel.Count(); i++)
+                    var aux = new string[1];
+                     var lel = new string[1];
+                    if (item.Value.Contains($"{comillaSimple}"))
                     {
-                        if (SETS.ContainsKey(lel[i]))
+                    aux = item.Value.Replace("+","").Replace("*","").Replace("|","").Replace(".","").Replace("(", "").Replace(")", "").Replace("'", "").Replace("  ", " ").Trim().Split(' ');
+                        for (int i = 0; i < aux.Length; i++)
                         {
-                            foreach (var node in SETS[lel[i]])
+                            aux[i] = $"{aux[i]}";
+                        }
+                    lel = SinRepetidos(aux);
+                        Simples.Add(aux[0], item.Key.Trim());
+                    }
+                    else
+                    {
+                        aux = item.Value.Replace("+","").Replace("*","").Replace("|","").Replace(".","").Replace("(", "").Replace(")", "").Replace("'", "").Replace("  ", " ").Trim().Split(' ');
+                        lel = SinRepetidos(aux);
+                        Compuestos.Add(item.Key.Trim(), "");
+                        
+                        for (int i = 0; i < lel.Count(); i++)
+                        {
+                            if (SETS.ContainsKey(lel[i]))
+                            {
+                                foreach (var node in SETS[lel[i]])
+                                {
+
+                                    Compuestos[item.Key.Trim()] += $"{node},";
+                                }
+                                    Compuestos[item.Key.Trim()] += "↓";
+                            }
+                            else
                             {
 
-                                Posibilidades[item.Key.Trim()] += $"{node},";
+                                    Compuestos[item.Key.Trim()] += $"{lel[i]},";
                             }
-                                Posibilidades[item.Key.Trim()] += "↓";
-                        }
-                        else
-                        {
-
-                                Posibilidades[item.Key.Trim()] += $"{lel[i]},";
                         }
                     }
                     
                 }
             }
-            List<KeyValuePair<string, string>> myList = Posibilidades.ToList();
+            List<KeyValuePair<string, string>> myList = Compuestos.ToList();
 
             myList.Sort(
                 delegate (KeyValuePair<string, string> pair1,
@@ -336,7 +352,12 @@ namespace Proyecto_Lenguajes
                     return pair1.Value.CompareTo(pair2.Value);
                 }
             );
-            var json = JsonConvert.SerializeObject(Posibilidades);
+            Compuestos = new Dictionary<string, string>();
+            foreach (var item in myList)
+            {
+                Compuestos.Add(item.Key,item.Value);
+            }
+            var json = JsonConvert.SerializeObject(Compuestos);
             var ifs = "";
             foreach (var item in ACTIONS)
             {
@@ -347,13 +368,20 @@ namespace Proyecto_Lenguajes
             ifs += "default:\n";
 
 
-            var arreglo = "156 x a :=b c=d const a".Split(' ');
+            var arreglo = "156 x a := b c = d const a".Replace("  "," ").Split(' ');
             foreach (var item in arreglo)
             {
-               var lol = PerteneceAlLenguajUnico("TOKEN 1", item);
-               var lol1 = PerteneceAlLenguajUnico("TOKEN 2", item);
-               var lol2 = PerteneceAlLenguajUnico("TOKEN 3", item);
-               var lol3 = PerteneceAlLenguajUnico("TOKEN 4", item);
+                //busqueda de simpl, si no, busca en compuestos
+                if (Simples.ContainsKey(item))
+                {
+                    var resultado = Simples[item];
+                }
+                else
+                {   //compuesto
+                    var lol3 = PerteneceAlLenguajUnico("TOKEN 4", item);
+                    var lol = PerteneceAlLenguajUnico("TOKEN 1", item);
+
+                }
                
             }
             ifs += "break;\n";
@@ -361,44 +389,47 @@ namespace Proyecto_Lenguajes
             {
                 var anterior = false;
                 var actual = false;
-                var lenguajes = Posibilidades[Token].Split('↓');
-                for (int i = 0; i < lenguajes.Count(); i++)
-                {
+               
 
-                    if (lenguajes[i] !="")
+                    var lenguajes = Compuestos[Token].Split('↓');
+                    for (int i = 0; i < lenguajes.Count(); i++)
                     {
-                        for (int j = 0; j < entrada.Length; j++)
+
+                        if (lenguajes[i] !="")
                         {
-
-                        
-                            if (lenguajes[i].Contains(entrada[j].ToString().Replace(",","")))
-                            {
-                                actual = true;
-                            }
-                            else
-                            {
-                                actual = false;
-
-                            }
-                            if (j == 0)
-                            {
-                                anterior = actual || anterior;
-                            }
-                            else if (j == entrada.Length - 1)
+                            for (int j = 0; j < entrada.Length; j++)
                             {
 
-                                anterior = actual || anterior;
-                            }
-                            else
-                            {
+                            
+                                if (lenguajes[i].Contains(entrada[j].ToString().Replace(",","")))
+                                {
+                                    actual = true;
+                                }
+                                else
+                                {
+                                    actual = false;
 
-                                anterior = actual || anterior;
+                                }
+                                if (j == 0)
+                                {
+                                    anterior = actual || anterior;
+                                }
+                                else if (j == entrada.Length - 1)
+                                {
+
+                                    anterior = actual || anterior;
+                                }
+                                else
+                                {
+
+                                    anterior = actual || anterior;
+                                }
                             }
+                           
                         }
-                       
+                    
                     }
                 
-                }
 
                 return (anterior||actual);
             }
