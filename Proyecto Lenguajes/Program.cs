@@ -343,21 +343,23 @@ namespace Proyecto_Lenguajes
                     
                 }
             }
+
             List<KeyValuePair<string, string>> myList = Compuestos.ToList();
 
-            myList.Sort(
-                delegate (KeyValuePair<string, string> pair1,
-                KeyValuePair<string, string> pair2)
-                {
-                    return pair1.Value.CompareTo(pair2.Value);
-                }
-            );
+            myList.Sort(delegate (KeyValuePair<string, string> pair1, KeyValuePair<string, string> pair2)
+                { return pair1.Value.CompareTo(pair2.Value); } );
+
             Compuestos = new Dictionary<string, string>();
             foreach (var item in myList)
             {
                 Compuestos.Add(item.Key,item.Value);
             }
+            
+            //meta data a enviar
             var json = JsonConvert.SerializeObject(Compuestos);
+            var json2 = JsonConvert.SerializeObject(Simples);
+
+            //armando de las actions
             var ifs = "";
             foreach (var item in ACTIONS)
             {
@@ -368,6 +370,7 @@ namespace Proyecto_Lenguajes
             ifs += "default:\n";
 
 
+            //probando algoritmos
             var arreglo = "156 x a := b c = d const a".Replace("  "," ").Split(' ');
             foreach (var item in arreglo)
             {
@@ -384,55 +387,9 @@ namespace Proyecto_Lenguajes
                 }
                
             }
+
+            //armando el texto
             ifs += "break;\n";
-            bool PerteneceAlLenguajUnico(string Token,string entrada)
-            {
-                var anterior = false;
-                var actual = false;
-               
-
-                    var lenguajes = Compuestos[Token].Split('↓');
-                    for (int i = 0; i < lenguajes.Count(); i++)
-                    {
-
-                        if (lenguajes[i] !="")
-                        {
-                            for (int j = 0; j < entrada.Length; j++)
-                            {
-
-                            
-                                if (lenguajes[i].Contains(entrada[j].ToString().Replace(",","")))
-                                {
-                                    actual = true;
-                                }
-                                else
-                                {
-                                    actual = false;
-
-                                }
-                                if (j == 0)
-                                {
-                                    anterior = actual || anterior;
-                                }
-                                else if (j == entrada.Length - 1)
-                                {
-
-                                    anterior = actual || anterior;
-                                }
-                                else
-                                {
-
-                                    anterior = actual || anterior;
-                                }
-                            }
-                           
-                        }
-                    
-                    }
-                
-
-                return (anterior||actual);
-            }
             var codigoDeSalida = "";
             codigoDeSalida+="using System;\n";
             codigoDeSalida+= "using System.Collections.Generic;\n";
@@ -452,7 +409,10 @@ namespace Proyecto_Lenguajes
             codigoDeSalida+=                    "var File = new StreamReader(Archivo);\n";
             codigoDeSalida+=                    "var LineaActual = File.ReadLine();\n";
             codigoDeSalida+=                    $"var RESULTADO = {comillas}{comillas};\n";
-            codigoDeSalida+=                    "while (LineaActual != null)\n";
+           codigoDeSalida+= " var Compuestos = new Dictionary<string, string>();\n";
+            codigoDeSalida += " var Simples = new Dictionary<string, string>();\n";
+            codigoDeSalida += " var Alfabeto = "+";\n";
+            codigoDeSalida +=                    "while (LineaActual != null)\n";
             codigoDeSalida+=                    "{\n";
                      
 
@@ -461,6 +421,8 @@ namespace Proyecto_Lenguajes
             codigoDeSalida += " {\n";
             codigoDeSalida += "     switch (item)\n";
             codigoDeSalida += "     {\n";
+
+            //GENERANDO LOS cases de los actions
             foreach (var item in ACTIONS)
             {
                 codigoDeSalida += $"case {comillas}{item.Key}{comillas}:\n";
@@ -469,15 +431,126 @@ namespace Proyecto_Lenguajes
                 codigoDeSalida += "break;\n";
             }
             codigoDeSalida += "default:\n";
+            // ARMAR IFS DE LOS RESTANTES
+
+
             codigoDeSalida += "break;\n";
             codigoDeSalida += "     }\n";
             codigoDeSalida += " }\n";
             codigoDeSalida+= "}\n";
+
+
+
+            //metodos
+            codigoDeSalida += "bool PerteneceAlLenguajUnico(string Token, string entrada)\n";
+            codigoDeSalida += "{\n";
+            codigoDeSalida += "    var anterior = false;\n";
+            codigoDeSalida += "    var actual = false;\n";
+
+
+            codigoDeSalida += "    var lenguajes = Compuestos[Token].Split('↓');\n";
+            codigoDeSalida += "    for (int i = 0; i < lenguajes.Count(); i++)\n";
+            codigoDeSalida += "    {\n";
+
+            codigoDeSalida += $"        if (lenguajes[i] != {comillas}{comillas})\n";
+            codigoDeSalida += "        {\n";
+            codigoDeSalida += "            for (int j = 0; j < entrada.Length; j++)\n";
+            codigoDeSalida += "            {\n";
+
+
+            codigoDeSalida += $"                if (lenguajes[i].Contains(entrada[j].ToString().Replace({comillas},{comillas}, {comillas}{comillas})))\n";
+            codigoDeSalida += "                {\n";
+            codigoDeSalida += "                    actual = true;\n";
+            codigoDeSalida += "                }\n";
+            codigoDeSalida += "                else\n";
+            codigoDeSalida += "                {\n";
+            codigoDeSalida += "                    actual = false;\n";
+
+            codigoDeSalida += "                }\n";
+            codigoDeSalida += "                if (j == 0)\n";
+            codigoDeSalida += "                {\n";
+            codigoDeSalida += "                    anterior = actual || anterior;\n";
+            codigoDeSalida += "                }\n";
+            codigoDeSalida += "                else if (j == entrada.Length - 1)\n";
+            codigoDeSalida += "                {\n";
+            codigoDeSalida += "                    anterior = actual || anterior;\n";
+            codigoDeSalida += "                }\n";
+            codigoDeSalida += "                else\n";
+            codigoDeSalida += "                {\n";
+            codigoDeSalida += "                    anterior = actual || anterior;\n";
+            codigoDeSalida += "                }\n";
+            codigoDeSalida += "            }\n";
+
+            codigoDeSalida += "        }\n";
+
+            codigoDeSalida += "    }\n";
+            codigoDeSalida += " return (anterior || actual);\n";
+            codigoDeSalida += "}\n";
+
+            // codigoDeSalida += "    return (anterior || actual);
+            // codigoDeSalida += "}
+
             codigoDeSalida += "            }\n";
             codigoDeSalida+= "        }\n";
             codigoDeSalida += "    }\n";
 
             Console.ReadLine();
+
+
+
+
+
+
+
+            bool PerteneceAlLenguajUnico(string Token, string entrada)
+            {
+                var anterior = false;
+                var actual = false;
+
+
+                var lenguajes = Compuestos[Token].Split('↓');
+                for (int i = 0; i < lenguajes.Count(); i++)
+                {
+
+                    if (lenguajes[i] != "")
+                    {
+                        for (int j = 0; j < entrada.Length; j++)
+                        {
+
+
+                            if (lenguajes[i].Contains(entrada[j].ToString().Replace(",", "")))
+                            {
+                                actual = true;
+                            }
+                            else
+                            {
+                                actual = false;
+
+                            }
+                            if (j == 0)
+                            {
+                                anterior = actual || anterior;
+                            }
+                            else if (j == entrada.Length - 1)
+                            {
+
+                                anterior = actual || anterior;
+                            }
+                            else
+                            {
+
+                                anterior = actual || anterior;
+                            }
+                        }
+
+                    }
+
+                }
+
+
+                return (anterior || actual);
+            }
+
             string[] SinRepetidos(string[] Arreglo)
             {
                 var dicaux = new Dictionary<string, bool>();
