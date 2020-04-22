@@ -5,19 +5,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Proyecto_Lenguajes;
+using Newtonsoft.Json;
 namespace Proyecto_Lenguajes
 {
     class Program
     {
-        private static string cadena;
-        private static int i;
-
         static void Main(string[] args)
         {
             var SETS = new Dictionary<string, List<char>>();
             var TOKENS = new Dictionary<string, string>();
             var Error = new Dictionary<string, string>();
-            var Actions = new Dictionary<string, string>();
+            var ACTIONS = new Dictionary<string, string>();
             #region Fase 1
 
             Console.WriteLine("Arrastrar El Archivo de prueba hacia la consola");
@@ -39,16 +37,18 @@ namespace Proyecto_Lenguajes
                 {
                     break;
                 }
-                var SetId = linea.Substring(0, linea.IndexOf('=')).Replace("\t", "");
+                var SetId = linea.Substring(0, linea.IndexOf('=')).Replace("\t", "").Trim();
                 var TokensArray = linea.Remove(0, linea.IndexOf('=') + 1).Trim().Split('+');
                 //validar chars
                 foreach (var item in TokensArray)
                 {
-                    var lol = item.Replace("..", "").Replace("...", "").ToCharArray();
-                    if (!SETS.ContainsKey(SetId))
+
+                    var lal = item.Replace("..", "").Replace($"'","").Replace($"{comillaSimple}{comillaSimple}","");
+                    var lol = lal.ToCharArray();
+                    if (!SETS.ContainsKey(SetId.Trim()))
                     {
                         SetId = SetId.Replace("  ", " ");
-                        SETS.Add(SetId, new List<char>());
+                        SETS.Add(SetId.Trim(), new List<char>());
                     }
                     if (lol.Length == 1)
                     {
@@ -60,7 +60,7 @@ namespace Proyecto_Lenguajes
                         for (int i = lol[0]; i <= lol[1]; i++)
                         {
 
-                            SETS[SetId].Add((char)i);
+                            SETS[SetId.Trim()].Add((char)i);
                         }
                     }
 
@@ -148,7 +148,7 @@ namespace Proyecto_Lenguajes
             {
 
                 var Array = linea.Trim().Replace(" ", "").Replace(comillaSimple, "").Split('=');
-                Actions.Add(Array[1], Array[0]);
+                ACTIONS.Add(Array[1], Array[0]);
                 linea = reader.ReadLine();
 
             }
@@ -284,109 +284,183 @@ namespace Proyecto_Lenguajes
             }
             #endregion
 
-            Console.ReadLine();
+            //Console.ReadLine();
 
-            var Posibilidades = new Dictionary<string, List<string>>();
+            var Posibilidades = new Dictionary<string, string>();
+            var Alfabeto = "";
+
+            
             foreach (var item in SETS)
             {
                 foreach (var nodo in item.Value)
                 {
-
+                    Alfabeto += $"{nodo},";
                 }
             }
 
+            foreach (var item in TOKENS)
+            {
+                var key = item.Key.Split('^');
+                if (!Posibilidades.ContainsKey(item.Key))
+                {
+                    var aux = item.Value.Replace("+","").Replace("*","").Replace("|","").Replace(".","").Replace("(", "").Replace(")", "").Replace("'", "").Replace("  ", " ").Trim().Split(' ');
+                    var lel = SinRepetidos(aux);
+                    Posibilidades.Add(item.Key.Trim(), "");
+                    
+                    for (int i = 0; i < lel.Count(); i++)
+                    {
+                        if (SETS.ContainsKey(lel[i]))
+                        {
+                            foreach (var node in SETS[lel[i]])
+                            {
+
+                                Posibilidades[item.Key.Trim()] += $"{node},";
+                            }
+                                Posibilidades[item.Key.Trim()] += "↓";
+                        }
+                        else
+                        {
+
+                                Posibilidades[item.Key.Trim()] += $"{lel[i]},";
+                        }
+                    }
+                    
+                }
+            }
+            List<KeyValuePair<string, string>> myList = Posibilidades.ToList();
+
+            myList.Sort(
+                delegate (KeyValuePair<string, string> pair1,
+                KeyValuePair<string, string> pair2)
+                {
+                    return pair1.Value.CompareTo(pair2.Value);
+                }
+            );
+            var json = JsonConvert.SerializeObject(Posibilidades);
+            var ifs = "";
+            foreach (var item in ACTIONS)
+            {
+                ifs+= $"case {comillas}{item.Key}{comillas}:\n";
+                ifs += $"return {item.Value};\n";
+                ifs += "break;\n";
+            }
+            ifs += "default:\n";
 
 
+            var arreglo = "156 x a :=b c=d const a".Split(' ');
+            foreach (var item in arreglo)
+            {
+               var lol = PerteneceAlLenguajUnico("TOKEN 1", item);
+               var lol1 = PerteneceAlLenguajUnico("TOKEN 2", item);
+               var lol2 = PerteneceAlLenguajUnico("TOKEN 3", item);
+               var lol3 = PerteneceAlLenguajUnico("TOKEN 4", item);
+               
+            }
+            ifs += "break;\n";
+            bool PerteneceAlLenguajUnico(string Token,string entrada)
+            {
+                var anterior = false;
+                var actual = false;
+                var lenguajes = Posibilidades[Token].Split('↓');
+                for (int i = 0; i < lenguajes.Count(); i++)
+                {
 
-            //var ruta = Console.ReadLine().Replace(comillas.ToString(),""); var Archivo = new FileStream(ruta, FileMode.Open); var Reader = new StreamReader(Archivo);
-            //var Lectura = string.Empty;
-            //while (Lectura!=null)
-            //{
-            //    foreach (var item in Lectura)
-            //    {
+                    if (lenguajes[i] !="")
+                    {
+                        for (int j = 0; j < entrada.Length; j++)
+                        {
 
-            //        switch (switch_on)
-            //        {
-            //            default:
-            //        }
-            //    }
-            //    Lectura = reader.ReadLine();
-            //}
+                        
+                            if (lenguajes[i].Contains(entrada[j].ToString().Replace(",","")))
+                            {
+                                actual = true;
+                            }
+                            else
+                            {
+                                actual = false;
 
+                            }
+                            if (j == 0)
+                            {
+                                anterior = actual || anterior;
+                            }
+                            else if (j == entrada.Length - 1)
+                            {
 
-            ////-------------------------------------------------
-            //var Estado = 0;
-            //    switch (Estado)
-            //    {
-            //        case 1:
-            //            if (cadena[i] == 9 || cadena[i] == 10 || cadena[i] == 13 ||
-            //            cadena[i] == 26 || cadena[i] == 32)
-            //            {
-            //                if (cadena[i] == 13) then i++;
-            //            }
-            //            else if ((cadena[i] >= 48 && cadena[i] <= 57))
-            //            {
-            //                Estado = 2;
-            //            } else if ((cadena[i] == 61))
-            //            {
-            //                Estado = 3;
-            //            } else if ((cadena[i] == 58))
-            //            {
+                                anterior = actual || anterior;
+                            }
+                            else
+                            {
 
-            //                Estado = 4;
-            //            }
-            //            else if ((cadena[i] >= 97 && cadena[i] <= 122) || (cadena[i] == 95) || (cadena[i] >= 65 && cadena[i] <= 90))
-            //            {
-            //                Estado = 5;
-            //            }
-            //            else
-            //            {
-            //                Error = true;
-            //                Salir = true;
-            //            };
-            //            break;
-            //        case 2:
-            //            if ((cadena[i] >= 48 && cadena[i] <= 57))
-            //                Estado = 2;
-            //            else
-            //            {
-            //                Retroceso();
-            //                Salir = true;
-            //            };
-            //            break;
-            //        case 4:
-            //            if ((cadena[i] == 61))
-            //                Estado = 6;
-            //            else
-            //            {
-            //                Error = true;
-            //                Salir = true;
-            //            };
-            //            break;
-            //        case 5:
-            //            if ((cadena[i] >= 97 && cadena[i] <= 122)
-            //            || (cadena[i] == 95)
-            //            || (cadena[i] >= 65 && cadena[i] <= 90)
-            //            || (cadena[i] >= 48 && cadena[i] <= 57))
-            //                Estado = 5;
-            //            else
-            //            {
-            //                Retroceso();
-            //                Salir = true;
-            //            };
-            //            break;
-            //            /*Case para estado y sus correspondiente no. de token*/
-            //            switch (Estado)
-            //            {
-            //                case 2: NumToken = 1; break;
-            //                case 3: NumToken = 2; break;
-            //                case 5: NumToken = 4; break;
-            //                case 6: NumToken = 3; break;
-            //                default:
-            //                    NumToken = 9;// el error
-            //                    Error = true;
-            //            };
+                                anterior = actual || anterior;
+                            }
+                        }
+                       
+                    }
+                
+                }
 
+                return (anterior||actual);
+            }
+            var codigoDeSalida = "";
+            codigoDeSalida+="using System;\n";
+            codigoDeSalida+= "using System.Collections.Generic;\n";
+            codigoDeSalida+="using System.IO;\n";
+            codigoDeSalida+="using System.Linq;\n";
+            codigoDeSalida+="using System.Text;\n";
+            codigoDeSalida+= "using System.Threading.Tasks;\n";
+            codigoDeSalida+= "using Proyecto_Lenguajes;\n";
+            codigoDeSalida+= "using Newtonsoft.Json;\n";
+            codigoDeSalida+= "namespace Proyecto_Lenguajes\n";
+            codigoDeSalida+= "    {\n";
+            codigoDeSalida+= "        class Program\n";
+            codigoDeSalida+= "        {\n";
+            codigoDeSalida+= "            static void Main(string[] args)\n";
+            codigoDeSalida+= "            {\n";
+            codigoDeSalida+=                    "var Archivo = Console.ReadLine().Trim();\n";
+            codigoDeSalida+=                    "var File = new StreamReader(Archivo);\n";
+            codigoDeSalida+=                    "var LineaActual = File.ReadLine();\n";
+            codigoDeSalida+=                    $"var RESULTADO = {comillas}{comillas};\n";
+            codigoDeSalida+=                    "while (LineaActual != null)\n";
+            codigoDeSalida+=                    "{\n";
+                     
+
+            codigoDeSalida += " var arreglo = LineaActual.Split(' ');\n";
+            codigoDeSalida += " foreach (var item in arreglo)\n";
+            codigoDeSalida += " {\n";
+            codigoDeSalida += "     switch (item)\n";
+            codigoDeSalida += "     {\n";
+            foreach (var item in ACTIONS)
+            {
+                codigoDeSalida += $"case {comillas}{item.Key}{comillas}:\n";
+                codigoDeSalida += $"RESULTADO = {comillas}{item.Value}{comillas};\n";
+               // codigoDeSalida += $"return;\n";
+                codigoDeSalida += "break;\n";
+            }
+            codigoDeSalida += "default:\n";
+            codigoDeSalida += "break;\n";
+            codigoDeSalida += "     }\n";
+            codigoDeSalida += " }\n";
+            codigoDeSalida+= "}\n";
+            codigoDeSalida += "            }\n";
+            codigoDeSalida+= "        }\n";
+            codigoDeSalida += "    }\n";
+
+            Console.ReadLine();
+            string[] SinRepetidos(string[] Arreglo)
+            {
+                var dicaux = new Dictionary<string, bool>();
+                for (int i = 0; i < Arreglo.Length; i++)
+                {
+                    if (!dicaux.ContainsKey(Arreglo[i]))
+                    {
+                        dicaux.Add(Arreglo[i], true);
+                    }
+                }
+                
+
+                return dicaux.Keys.ToArray();
+            }
             void Inorder(NodoExpresion Root)
             {
                 if (Root != null)

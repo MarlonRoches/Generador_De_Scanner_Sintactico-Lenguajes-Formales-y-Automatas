@@ -24,7 +24,7 @@ namespace Proyecto_Lenguajes
             }
         }
 
-        public Dictionary<string, string> Follows= new Dictionary<string, string>();
+        public Dictionary<string, string>           Follows= new Dictionary<string, string>();
         public Dictionary<string,List<string>> EstadosD= new Dictionary<string, List<string>>();
         public Dictionary<string, string> Transiciones= new Dictionary<string, string>();
 
