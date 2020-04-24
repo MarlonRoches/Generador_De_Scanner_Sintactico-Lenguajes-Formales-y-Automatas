@@ -285,7 +285,7 @@ namespace Proyecto_Lenguajes
             #endregion
 
             //Console.ReadLine();
-
+            Transiciones = Transiciones;
             var Compuestos = new Dictionary<string, string>();
             var Simples = new Dictionary<string, string>();
             var Alfabeto = "";
@@ -360,18 +360,139 @@ namespace Proyecto_Lenguajes
             var json2 = JsonConvert.SerializeObject(Simples);
 
             //armando de las actions
-            var ifs = "";
-            foreach (var item in ACTIONS)
-            {
-                ifs+= $"case {comillas}{item.Key}{comillas}:\n";
-                ifs += $"return {item.Value};\n";
-                ifs += "break;\n";
-            }
-            ifs += "default:\n";
+            //var ifs = "";
+            //foreach (var item in ACTIONS)
+            //{
+            //    ifs+= $"case {comillas}{item.Key}{comillas}:\n";
+            //    ifs += $"return {item.Value};\n";
+            //    ifs += "break;\n";
+            //}
+            //ifs += "default:\n";
 
+            var arreglo = "156 x a := b c = d const a".Replace("  ", " ").Split(' ');
+            var entradaejemplo = "9ROGRAM := = b c = d CONST 656 cons8 a".Replace("  ", " ").Replace(" ", "Ø");
+            var tokenactial = "";
+            Transiciones = Transiciones;
+            var TokensRearmados = new Dictionary<string, List<string>>();
+            var sets ="";
+            var palabraActual="";
+            var Qn=0;
+            bool encontrado = false;
+            Console.WriteLine("");
+            Console.WriteLine("Identificador De Tokens");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            foreach (var item in entradaejemplo)
+            {
+                if (item != 'Ø')
+                { 
+                    var actual = A_Que_SET_Pertenece(item);
+                    if (Transiciones.ContainsKey($"Q{Qn}^{actual}") && actual!="")
+                    {
+                    var TokenPerteneiente =$"Q{Qn}^{actual}";
+                    var lol = Transiciones[TokenPerteneiente];
+                    Qn = int.Parse( lol.Replace("Q", ""));
+                        sets += actual + ",";
+                        palabraActual += item;
+                    }
+                    else
+                    {
+                        //fuera de los sets
+                        if (Transiciones.ContainsKey($"Q{Qn}^{item}"))
+                        {
+                            var TokenPerteneiente = $"Q{Qn}^{item}";
+                            var lol = Transiciones[TokenPerteneiente];
+                            Qn = int.Parse(lol.Replace("Q", ""));
+                            sets += item + ",";
+                            palabraActual += item;
+                            if (Simples.ContainsKey(palabraActual))
+                            {
+                                Console.WriteLine($"{palabraActual} = {Simples[palabraActual]}");
+                                encontrado = true;
+                            }
+                            else
+                            {
+                                //aun no pertenece
+                                
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (!encontrado)
+                    {
+                        if (ACTIONS.ContainsKey(palabraActual))
+                        {
+                            var xd =TokenPerteneciente(sets.Split(','));
+                            Console.WriteLine($"{palabraActual} = TOKEN {ACTIONS[palabraActual]}");
+                            palabraActual = "";
+                            sets = "";
+                            Qn = 0;
+                        }
+                        else
+                        {
+                            //buscar token correspondiente
+                            var xd = TokenPerteneciente(sets.Split(','));
+                            Console.WriteLine(palabraActual + "=" +xd);
+                            palabraActual= "";
+                            sets = "";
+                            Qn = 0;
+                        }
+                    }
+                    else
+                    {
+                        encontrado = false;
+                        palabraActual = "";
+                        sets = "";
+                        Qn = 0;
+                    }
+                }
+            }
+            Console.ReadKey();
+
+            foreach (var item in entradaejemplo)
+            {
+                if (tokenactial == "")
+                {
+
+                }
+                else
+                {
+                }
+                
+            }
+
+
+
+            #region CodigoQuemado
+            var ifs = "";
+            ifs += "foreach (var item in arreglo)\n";
+            ifs += "{\n";
+            //busqueda de simpl, si no, busca en compuestos
+            ifs += "if (Simples.ContainsKey(item))\n";
+               ifs += " {\n";
+            ifs += "resultado = Simples[item];\n";
+                ifs += "  }\n";
+            ifs += " else\n";
+            ifs += " {   //compuesto\n";
+            foreach (var item in Compuestos)
+            {
+                ifs += $"if (PerteneceAlLenguajUnico({comillas}{item.Key}{comillas}, item))\n";
+                ifs += "{\n";
+                //RETORNAR
+                ifs += "} else ";
+            }
+           // var lol3 = PerteneceAlLenguajUnico("TOKEN 4", item);
+               //     var lol = PerteneceAlLenguajUnico("TOKEN 1", item);
+
+                ifs += " {\n";
+                ifs += " }\n";
+
+            ifs += "}\n";
+            ifs += "else\n";
 
             //probando algoritmos
-            var arreglo = "156 x a := b c = d const a".Replace("  "," ").Split(' ');
+             arreglo = "156 x a := b c = d const a".Replace("  "," ").Split(' ');
             foreach (var item in arreglo)
             {
                 //busqueda de simpl, si no, busca en compuestos
@@ -390,6 +511,7 @@ namespace Proyecto_Lenguajes
 
             //armando el texto
             ifs += "break;\n";
+
             var codigoDeSalida = "";
             codigoDeSalida+="using System;\n";
             codigoDeSalida+= "using System.Collections.Generic;\n";
@@ -411,17 +533,14 @@ namespace Proyecto_Lenguajes
             codigoDeSalida+=                    $"var RESULTADO = {comillas}{comillas};\n";
            codigoDeSalida+= " var Compuestos = new Dictionary<string, string>();\n";
             codigoDeSalida += " var Simples = new Dictionary<string, string>();\n";
-            codigoDeSalida += " var Alfabeto = "+";\n";
+            codigoDeSalida += $" var Alfabeto = {comillas}{comillas};\n";
             codigoDeSalida +=                    "while (LineaActual != null)\n";
             codigoDeSalida+=                    "{\n";
-                     
-
             codigoDeSalida += " var arreglo = LineaActual.Split(' ');\n";
             codigoDeSalida += " foreach (var item in arreglo)\n";
             codigoDeSalida += " {\n";
             codigoDeSalida += "     switch (item)\n";
             codigoDeSalida += "     {\n";
-
             //GENERANDO LOS cases de los actions
             foreach (var item in ACTIONS)
             {
@@ -432,10 +551,30 @@ namespace Proyecto_Lenguajes
             }
             codigoDeSalida += "default:\n";
             // ARMAR IFS DE LOS RESTANTES
-
-
-            codigoDeSalida += "break;\n";
+            codigoDeSalida += "foreach (var item2 in arreglo)\n";
+            codigoDeSalida += "{\n";
+            //busqueda de simpl, si no, busca en compuestos
+            codigoDeSalida += "if (Simples.ContainsKey(item2))\n";
+            codigoDeSalida += " {\n";
+            codigoDeSalida += $"Console.WriteLine(item2 + {comillas}={comillas} +Simples[item2]);\n";
+            codigoDeSalida += "  }\n";
+            codigoDeSalida += " else\n";
+            codigoDeSalida += " {   //compuesto\n";
+            foreach (var item in Compuestos)
+            {
+                codigoDeSalida += $"if (PerteneceAlLenguajUnico({comillas}{item.Key}{comillas}, item2))\n";
+                codigoDeSalida += "{\n";
+                //RETORNAR
+            codigoDeSalida += $"Console.WriteLine(item2 + {comillas}={comillas} + {comillas}{item.Key}{comillas});\n";
+                codigoDeSalida += "} else ";
+            }
+            // var lol3 = PerteneceAlLenguajUnico("TOKEN 4", item);
+            //     var lol = PerteneceAlLenguajUnico("TOKEN 1", item);
+            codigoDeSalida += " {\n";
+            codigoDeSalida += " }\n";
+            codigoDeSalida += "}\n";
             codigoDeSalida += "     }\n";
+            codigoDeSalida += "break;\n";
             codigoDeSalida += " }\n";
             codigoDeSalida+= "}\n";
 
@@ -493,15 +632,59 @@ namespace Proyecto_Lenguajes
             codigoDeSalida += "            }\n";
             codigoDeSalida+= "        }\n";
             codigoDeSalida += "    }\n";
+            codigoDeSalida += "    }\n";
 
+            #endregion
             Console.ReadLine();
+            string TokenPerteneciente(string[] SetsEncontrados)
+            {
+                var sin = SinRepetidos(SetsEncontrados);
+                var anterior = true;
+                var salida = "";
+                foreach (var item in TOKENS)
+                {
+                    foreach (var token in sin)
+                    {
+                        if (token != "")
+                        {
 
+                            anterior = anterior&& item.Value.Contains(token);   
+                        }
+                    }
+                    if (anterior)
+                    {
+                        salida = item.Key;
+                        break;
+                    }
+                    else
+                    {
+                        anterior = true;
+                    }
+                }
 
-
-
-
-
-
+                return salida;
+            }
+            string A_Que_SET_Pertenece(char actual)
+            {
+                var salida = "";
+                foreach (var set in SETS)
+                {
+                    var lista = set.Value;
+                    foreach (var chara in lista)
+                    {
+                        if (chara== actual)
+                        {
+                            salida = set.Key;
+                            break;
+                        }
+                    }
+                    if (salida != "")
+                    {
+                        break;
+                    }
+                }
+                return salida;
+            }
             bool PerteneceAlLenguajUnico(string Token, string entrada)
             {
                 var anterior = false;
@@ -550,7 +733,6 @@ namespace Proyecto_Lenguajes
 
                 return (anterior || actual);
             }
-
             string[] SinRepetidos(string[] Arreglo)
             {
                 var dicaux = new Dictionary<string, bool>();
