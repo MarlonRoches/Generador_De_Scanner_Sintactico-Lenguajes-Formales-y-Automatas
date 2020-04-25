@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Proyecto_Lenguajes;
-using Newtonsoft.Json;
 using System.Diagnostics;
 
 namespace Proyecto_Lenguajes
@@ -17,19 +14,24 @@ namespace Proyecto_Lenguajes
             var SETS = new Dictionary<string, List<char>>();
             var TOKENS = new Dictionary<string, string>();
             var ERRORS = new Dictionary<string, string>();
+            var Transiciones = new Dictionary<string, string>();
+            var Compuestos = new Dictionary<string, string>();
+            var Simples = new Dictionary<string, string>();
             var ACTIONS = new Dictionary<string, string>();
+            var Alfabeto = "";
+            var Raiz = new NodoExpresion();
             #region Fase 1
             var barrasdobles = (char)92;
             Console.WriteLine("Arrastrar El Archivo de prueba hacia la consola");
             var linea_actual = 0;
-            var path = "C:\\Users\\roche\\Desktop\\Lenguajes\\archivo 19.txt";
+            var path = Console.ReadLine() ;
             //path = "C:\\Users\\roche\\Desktop\\Prueba De Automata\\ProyectoLenguajes\\Archivo Prueba.txt";
+            var comillas = '"';
 
-            var reader = new StreamReader(path);
+            var reader = new StreamReader(path.Replace(comillas.ToString(),""));
             var linea = reader.ReadLine(); linea_actual++;
             linea = linea.Replace(" ", "");
             var MegaExpresion = string.Empty;
-            var comillas = '"';
             var comillaSimple = "'";
             //C:\Users\roche\Desktop\Lenguajes\archivo 19.txt
             //leer Sets
@@ -146,23 +148,23 @@ namespace Proyecto_Lenguajes
                 linea = reader.ReadLine(); linea_actual++;
             }
             MegaExpresion += "Ø";//Ø=157
-                                 //try
-                                 // {
-            var Transiciones = Arbol_De_Expresiones.Instance.Generar_Arbol(MegaExpresion, SETS.Keys.ToArray());
-            var Raiz = Arbol_De_Expresiones.Raiz;
-            //}
-            //catch (Exception)
-            //{
-            //    Console.Clear();
-            //    Console.BackgroundColor = ConsoleColor.White;
-            //    Console.ForegroundColor = ConsoleColor.Red;
-            //    Console.WriteLine($"Error => Token no encontrado");
+            try
+             {
+            Transiciones = Arbol_De_Expresiones.Instance.Generar_Arbol(MegaExpresion, SETS.Keys.ToArray());
+             Raiz = Arbol_De_Expresiones.Raiz;
+            //Arbol_De_Expresiones.Instance.Inorder(Raiz);
+            }
+            catch (Exception)
+            {
+                Console.Clear();
+                Console.BackgroundColor = ConsoleColor.White;
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Error => Token no encontrado");
 
-            //    Console.ReadLine();
-            //    Environment.Exit(0);
-            //    throw;
-            //}
-            //Arbol_De_Expresiones.Instance.Inorder(Arbol_De_Expresiones.Instance.Diccionario_Nodos);
+                Console.ReadLine();
+                Environment.Exit(0);
+                throw;
+            }
 
             while (linea.Trim() != "{")
             {
@@ -228,6 +230,46 @@ namespace Proyecto_Lenguajes
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("FOLLOWS");
             EscribirFollows();
+            var Qanterior="Q0";
+            var DicAux = new Dictionary<string, List<string>>();
+            foreach (var item in Transiciones)
+            {
+                var estado = item.Key.Split('^');
+                if (DicAux.ContainsKey(estado[0]))
+                {
+                    DicAux[estado[0]].Add($"{estado[1]} -> {item.Value} | ");
+                }
+                else
+                {
+                    DicAux.Add(estado[0], new List<string>());
+                    DicAux[estado[0]].Add($"{estado[1]} -> {item.Value}");
+
+                }
+            }
+                Console.WriteLine();
+                Console.WriteLine("__________________________________________________");
+                Console.WriteLine("Tabla De Transiciones -  AFD");
+                Console.WriteLine("__________________________________________________");
+            foreach (var item in DicAux)
+            {
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.WriteLine("------------------------------------------------------------");
+                Console.WriteLine($"Estado: {item.Key}");
+                foreach (var nodo in item.Value)
+                {
+                Console.ForegroundColor = ConsoleColor.DarkCyan;
+                    Console.Write(nodo);
+                Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                    Console.Write(" | ");
+                }
+                Console.WriteLine();
+                Console.WriteLine("------------------------------------------------------------");
+            }
+                Console.ForegroundColor = ConsoleColor.Blue;
+            Console.ReadKey();
+
+
+
 
             // PRIMERA FASE
             #region Comentado
@@ -311,11 +353,6 @@ namespace Proyecto_Lenguajes
             }
             #endregion
 
-            //Console.ReadLine();
-            var Compuestos = new Dictionary<string, string>();
-            var Simples = new Dictionary<string, string>();
-            var Alfabeto = "";
-
             
             foreach (var item in SETS)
             {
@@ -376,11 +413,12 @@ namespace Proyecto_Lenguajes
                 { return pair1.Value.CompareTo(pair2.Value); } );
 
             Compuestos = new Dictionary<string, string>();
+            #region GenerarMetadata
             foreach (var item in myList)
             {
                 Compuestos.Add(item.Key,item.Value);
             }
-
+            Directory.CreateDirectory("D:\\MetaData");
             var File = new FileStream("D:\\MetaData\\SETS.txt", FileMode.Create);
             var writer = new StreamWriter(File);
             foreach (var item in SETS)
@@ -434,6 +472,8 @@ namespace Proyecto_Lenguajes
             }
             writer.Close();
             File.Close();
+            #endregion
+            #region Escanner Quemado
 
             var cs = "";
             cs += "        using System;\n";
@@ -752,7 +792,7 @@ namespace Proyecto_Lenguajes
             cs += "}\n";
 
 
-            File = new FileStream("Scanner.cs", FileMode.Create);
+            File = new FileStream("EscanerAFD.cs", FileMode.Create);
             writer = new StreamWriter(File);
             writer.WriteLine(cs);
             writer.Close();
@@ -770,16 +810,15 @@ namespace Proyecto_Lenguajes
             process.StandardInput.Close();
             process.WaitForExit();
             Console.WriteLine(process.StandardOutput.ReadToEnd());
+            #endregion
 
-            Process.Start("Scanner.exe");
+            //Process.Start("Scanner.exe");
 
-
+            Console.WriteLine("EscanerAFD.cs Generado en el bin");
             Console.ReadKey();
 
             void PruebaScanner()
             {
-                var json = JsonConvert.SerializeObject(Compuestos);
-                var json2 = JsonConvert.SerializeObject(Simples);
                 var arreglo = "156 x a := b c = d const a".Replace("  ", " ").Split(' ');
                 var entradaejemplo = $"{comillas}Ü{comillas} PROGRAM program VAR var v4r 459 a ?<= <= 5".Replace("  ", " ").Replace(" ", "Ø").Trim();
                 Console.WriteLine($"Texto de entrada: {entradaejemplo}");

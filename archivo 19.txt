@@ -1,0 +1,20 @@
+SETS 
+	LETRA   = 'A'..'Z'+'a'..'z'+'_'  
+	DIGITO  = '0'..'9'  
+TOKENS
+	TOKEN 1= DIGITO  DIGITO *                  
+	TOKEN  2  = '=' 
+	TOKEN  3  = ':''='        
+	TOKEN 4= LETRA ( LETRA | DIGITO )*  
+ 
+ACTIONS
+	RESERVADAS() 
+	{
+		18 = 'PROGRAM'
+		19 = 'INCLUDE'
+		20 = 'CONST'
+		21 = 'TYPE' 
+		22 = 'VAR' 
+	} 
+ 
+ERROR = 54 
