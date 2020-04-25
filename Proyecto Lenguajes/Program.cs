@@ -44,25 +44,48 @@ namespace Proyecto_Lenguajes
                 //validar chars
                 foreach (var item in TokensArray)
                 {
-
                     var lal = item.Replace("..", "").Replace($"'","").Replace($"{comillaSimple}{comillaSimple}","");
-                    var lol = lal.ToCharArray();
-                    if (!SETS.ContainsKey(SetId.Trim()))
+                    if (lal.Contains('('))
                     {
-                        SetId = SetId.Replace("  ", " ");
-                        SETS.Add(SetId.Trim(), new List<char>());
-                    }
-                    if (lol.Length == 1)
-                    {
-                        SETS[SetId].Add(lol[0]);
+                    SETS.Add(SetId, new List<char>());
+                        var aux = lal.Replace(')',',').Replace("CHR(", "").Split(',');
+                        var listaaux = new List<int>();
+                        for (int i = 0; i < aux.Count(); i++)
+                        {
+                            if (aux[i]!="")
+                            {
+                                listaaux.Add(int.Parse(aux[i].Trim()));
+                            }
+                        }
+                        listaaux.Sort((x, y) => x.CompareTo(y));
+                        var desde = listaaux[0];
+                        var hasta = listaaux[listaaux.Count - 1];
+
+                        for (int i = desde; i < hasta; i++)
+                        {
+                            SETS[SetId].Add((char)((byte)i));
+                        }
                     }
                     else
                     {
-
-                        for (int i = lol[0]; i <= lol[1]; i++)
+                        var lol = lal.ToCharArray();
+                        if (!SETS.ContainsKey(SetId.Trim()))
+                        {
+                            SetId = SetId.Replace("  ", " ");
+                            SETS.Add(SetId.Trim(), new List<char>());
+                        }
+                        if (lol.Length == 1)
+                        {
+                            SETS[SetId].Add(lol[0]);
+                        }
+                        else
                         {
 
-                            SETS[SetId.Trim()].Add((char)i);
+                            for (int i = lol[0]; i <= lol[1]; i++)
+                            {
+
+                                SETS[SetId.Trim()].Add((char)i);
+                            }
                         }
                     }
 
@@ -167,7 +190,7 @@ namespace Proyecto_Lenguajes
             ///mostrar SETS
             foreach (var set in SETS)
             {
-                Console.WriteLine($"El SET '{set.Key}' contiene los siguiente scaracteres:");
+                Console.WriteLine($"El SET '{set.Key}' contiene los siguientes caracteres:");
                 foreach (var caract in set.Value)
                 {
                     Console.Write($"'{caract}', ");
@@ -357,22 +380,10 @@ namespace Proyecto_Lenguajes
                 Compuestos.Add(item.Key,item.Value);
             }
             
-            //meta data a enviar
             var json = JsonConvert.SerializeObject(Compuestos);
             var json2 = JsonConvert.SerializeObject(Simples);
-
-            //armando de las actions
-            //var ifs = "";
-            //foreach (var item in ACTIONS)
-            //{
-            //    ifs+= $"case {comillas}{item.Key}{comillas}:\n";
-            //    ifs += $"return {item.Value};\n";
-            //    ifs += "break;\n";
-            //}
-            //ifs += "default:\n";
-
             var arreglo = "156 x a := b c = d const a".Replace("  ", " ").Split(' ');
-            var entradaejemplo = $"Program VAR a = 5 TYPE CONST 126 {comillas}H{comillas} = <= <> >= OR AND * DIV DI ".Replace("  ", " ").Replace(" ", "Ø");
+            var entradaejemplo = $"Program PROGRAM VAR a ?<= 5".Replace("  ", " ").Replace(" ", "Ø").Trim();
             var tokenactial = "";
             Transiciones = Transiciones;
             var TokensRearmados = new Dictionary<string, List<string>>();
@@ -380,13 +391,36 @@ namespace Proyecto_Lenguajes
             var palabraActual="";
             var Qn=0;
             bool encontrado = false;
+            bool error = false;
             Alfabeto = Alfabeto;
             Console.WriteLine("");
+            Console.ForegroundColor = ConsoleColor.DarkBlue;
+            Console.BackgroundColor = ConsoleColor.White;
             Console.WriteLine("Identificador De Tokens");
-            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+
             foreach (var item in entradaejemplo)
             {
-                
+                //error encontrado, navegar hasta que encuentr todo el token y lo devalide
+                if (error)
+                {
+                    if (item == 'Ø')
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                        Console.WriteLine($"{Error.ToArray()[0].Value} {Error.ToArray()[0].Key}: ({palabraActual})");
+                        Console.ForegroundColor = ConsoleColor.DarkGreen;
+                        palabraActual = "";
+                        sets = "";
+                        Qn = 0;
+                        error = false;
+                    }
+                    else
+                    {
+
+                        palabraActual += item;
+                    }
+                }
+                else
                     if (item != 'Ø')
                     { 
                         var actual = A_Que_SET_Pertenece(item);
@@ -418,6 +452,13 @@ namespace Proyecto_Lenguajes
                                     //aun no pertenece
                                     
                                 }
+                            }
+                            else
+                            {
+                                palabraActual += item;
+                                sets = "";
+                                Qn = 0;
+                            error = true;
                             }
                         }
                     }
@@ -467,20 +508,15 @@ namespace Proyecto_Lenguajes
                 //    Qn = 0;
                 //}
             }
+            var uno = TokenPerteneciente(sets.Split(','));
+            Console.WriteLine(palabraActual + "=" + uno);
+            palabraActual = "";
+            sets = "";
+            Qn = 0;
+
             Console.ReadKey();
 
-            foreach (var item in entradaejemplo)
-            {
-                if (tokenactial == "")
-                {
-
-                }
-                else
-                {
-                }
-                
-            }
-
+       
 
 
             #region CodigoQuemado
