@@ -1,10 +1,10 @@
 SETS 
 	LETRA   = 'A'..'Z'+'a'..'z'+'_'  
-	DIGITO  = '0'..'9'  
+	DIGITO  = '5'..'7'  
 TOKENS
 	TOKEN 1= DIGITO  DIGITO *                  
 	TOKEN  2  = '=' 
-	TOKEN  3  = ':''='        
+	TOKEN  3  = '/''='        
 	TOKEN 4= LETRA ( LETRA | DIGITO )*  
  
 ACTIONS
